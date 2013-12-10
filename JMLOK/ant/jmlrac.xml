@@ -1,0 +1,10 @@
+<project name="jmlRac" default="jmlrac" basedir="..">
+	<target name="jmlrac">
+		<echo>
+            Rodando com o JMLRAC
+        </echo>
+		<exec command="jmlrac.bat">		
+			<arg value="${jmlBin}" />
+		</exec>
+	</target>
+</project>

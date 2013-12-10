@@ -1,0 +1,44 @@
+<project name="generateTests" default="compile_tests" basedir="..">
+
+	<target name="generate_tests">
+			<echo>
+	            Generating tests
+	        </echo>
+			<java classname="detect.TestGenerator" fork="false" maxmemory="512m">
+				<arg value="${classlist}" />
+				<arg value="${timeout}" />
+				<arg value="${tests_folder}" />
+				<classpath>
+					<pathelement path="${jmlLib}" />
+					<pathelement path="bin" />
+					<pathelement path="${source_bin}" />
+					<fileset dir="${lib}">
+						<include name="**/*.jar" />
+					</fileset>
+	                <fileset dir="lib">
+						<include name="**/*.jar" />
+					</fileset>
+				</classpath>
+			</java>
+		</target>
+	
+	<target name="compile_tests" depends="generate_tests">
+			<echo>Compiling the tests</echo>
+			<javac fork="yes" memorymaximumsize="512m" includes="*.java" debug="on" srcdir="${tests_src}" destdir="${tests_bin}" includeantruntime="false">
+				<classpath>
+					<fileset dir="${lib}">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="C:/openjml/">
+						<include name="openjml.jar" />
+					</fileset>
+					<pathelement location="${source_bin}" />
+					<pathelement path="${jmlLib}" />
+				</classpath>
+			</javac>
+	</target>
+	
+</project>
