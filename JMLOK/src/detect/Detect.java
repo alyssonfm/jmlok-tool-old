@@ -200,7 +200,8 @@ public class Detect {
 	}
 	
 	public static void main(String[] args) {
-		Detect d = new Detect(1);
+		// usar apenas o jmlc agora.
+		Detect d = new Detect(0);
 		d.execute3("C:\\Car", "", "1");
 	}
 }
