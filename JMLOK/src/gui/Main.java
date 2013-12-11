@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import utils.Constants;
 import detect.Detect;
 
 @SuppressWarnings("serial")
@@ -94,7 +95,7 @@ public class Main extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Detect d = new Detect(1);
+				Detect d = new Detect(Constants.JMLC_COMPILER);
 				d.detect(sourceDir.getText(), libsDir.getText(), time.getText());
 				JOptionPane.showMessageDialog(null, "Finished");
 			}

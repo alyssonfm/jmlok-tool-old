@@ -201,7 +201,7 @@ public class Detect {
 	
 	public static void main(String[] args) {
 		// usar apenas o jmlc agora.
-		Detect d = new Detect(0);
+		Detect d = new Detect(Constants.JMLC_COMPILER);
 		d.execute3("C:\\Car", "", "1");
 	}
 }
