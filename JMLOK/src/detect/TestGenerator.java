@@ -11,23 +11,24 @@ public class TestGenerator {
 
 	/**
 	 * Method to generate the test cases.
-	 * @param classlist = the path to all class which will be generated tests.
 	 * @param timeout = the limit of time used in the process of test generation.
 	 */
-	public static void generateTests(String classlist, String timeout) {
+	public static void generateTests(String timeout) {
 
 		randoop.main.Main main = new randoop.main.Main();
-		String[] argsRandoop = { "gentests", "--classlist="+classlist,                    
-                      		"--timelimit=" + timeout, "--log=filewriter", "--outputlimit=1",
-				"--junit-output-dir=" + Constants.TEST_DIR }; //"--methodlist="C:\\methods.txt", "--classlist=" + classlist,
+		String[] argsRandoop = { "gentests", "--classlist="+Constants.CLASSES,                    
+                      		"--timelimit=" + timeout, "--log=filewriter", 
+				"--junit-output-dir=" + Constants.TEST_DIR };
 		main.nonStaticMain(argsRandoop);
 	}
 	
+	/**
+	 * Method that calls the method used to generate the test cases to test the SUT.
+	 * @param args = the list of arguments used in the process of tests generation.
+	 */
 	public static void main(String[] args) {
-		String classlist = args[0];
-		String timeout = args[1];
-		//String classes = "C:\\Users\\Alysson\\Desktop\\methodList.txt";
-        generateTests(classlist, timeout);
+		String timeout = args[0];
+        generateTests(timeout);
 	}
 	
 }

@@ -64,6 +64,7 @@ public class FileUtil {
 		}
 		return result; 
 	}
+	
 	/**
 	 * Method to remove the extension of the files.
 	 * @param arquivo - the file that extension will be removed.
@@ -76,7 +77,7 @@ public class FileUtil {
 	}
 	
 	/**
-	 * Method to creates a new file with the name and content passed as parameter.
+	 * Method to creates a new file with the name and content received as parameter.
 	 * @param name - the name of the new file.
 	 * @param texto - the content of the file.
 	 * @return - the new file created.
@@ -99,7 +100,7 @@ public class FileUtil {
 	}
 	
 	/**
-	 * Method to read a file passed as parameter.
+	 * Method to read a file received as parameter.
 	 * @param name - the name of the file to be read.
 	 * @return - the content of the file.
 	 */

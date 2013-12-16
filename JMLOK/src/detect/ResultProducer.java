@@ -31,18 +31,39 @@ import utils.Constants;
 import utils.FileUtil;
 import categorize.CategoryName;
 
+/**
+ * Class used to creates the file with the distinct nonconformances detected by the tool.
+ * @author Alysson
+ * @version 1.0
+ */
 public class ResultProducer {
 
+	/**
+	 * A simple counter of nonconformances, used to GUI purposes (to show the number of NCs to the user of JMLOK).
+	 */
 	private int ncCount;
 	
+	/**
+	 * The constructor of this class, creates a new instance of Result Producer class, and initializes the nonconformances counter.
+	 */
 	public ResultProducer() {
 		ncCount = 0;
 	}
 	
+	/**
+	 * Method that returns the number of nonconformances detected in the current SUT.
+	 * @return - the number of nonconformances detected.
+	 */
 	public int getNCTotal(){
 		return this.ncCount;
 	}
 
+	/**
+	 * Method used to list the distinct nonconformances that were detected by the JMLOK tool.
+	 * @param path = the path of file that contains a list of all tests that revealed nonconformances.
+	 * @param compiler = the integer that indicates the JML compiler used.
+	 * @return - the of list the distinct nonconformances that were detected by the JMLOK tool.
+	 */
 	public Set<TestError> listErrors(String path, int compiler){
 		File results = new File(path);
 		List<TestError> result;
@@ -52,10 +73,15 @@ public class ResultProducer {
 			result = getErrorsFromFile(results);
 		}
 		Set<TestError> result2 = new HashSet<TestError>(result);
+		this.ncCount = result2.size();
 		return result2;
-		
 	}
 	
+	/**
+	 * Method used to get the nonconformances from the result file of Randoop, when the jmlc is used as compiler.
+	 * @param file = the path to result file of Randoop.
+	 * @return - the list of nonconformances present in the test result file.
+	 */
 	private List<TestError> getErrorsFromXML(File file) {
 		List<TestError> result = new ArrayList<TestError>();
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -84,9 +110,7 @@ public class ResultProducer {
 								TestError te = new TestError(name, message,errorType);
 								if(te.isNonconformance()){
 									result.add(te);
-									this.ncCount++;
 								}
-							} else if (problem.getTagName().equals("failure")) {
 							}
 						}
 					}
@@ -104,6 +128,11 @@ public class ResultProducer {
 		return result;
 	}
 	
+	/**
+	 * Method used to get the nonconformances from the result file of Randoop, when the openjml is used as compiler.
+	 * @param file = the path to result file of Randoop.
+	 * @return - the list of nonconformances present in the test result file.
+	 */
 	private List<TestError> getErrorsFromFile(File file) {
 		List<TestError> result = new ArrayList<TestError>();
 		try {
@@ -136,6 +165,13 @@ public class ResultProducer {
 		return result;
 	}
 	
+	/**
+	 * Method used to create an element to put into the xml file.
+	 * @param doc = the Document where the element will be put.
+	 * @param type = the type of the nonconformance.
+	 * @param message = the message of the corresponding nonconformance.
+	 * @return - an element to put into the xml file.
+	 */
 	private Element createsElement(Document doc, String type, String message){
 		Element e = doc.createElement("error");
 		e.setAttribute("type", type);
@@ -143,6 +179,11 @@ public class ResultProducer {
 		return e;
 	}
 	
+	/**
+	 * Method that generates the file containing the nonconformances that were detected.
+	 * @param compiler = the integer that indicates the JML compiler used. 
+	 * @return - the list of nonconformances detected by the JMLOK tool.
+	 */
 	public Set<TestError> generateResult(int compiler){
 		Set<TestError> errors = listErrors(Constants.TEST_RESULTS, compiler);
 		Document doc = FileUtil.createXMLFile(Constants.RESULTS);

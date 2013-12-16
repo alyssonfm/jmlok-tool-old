@@ -5,7 +5,6 @@
 	            Generating tests
 	        </echo>
 			<java classname="detect.TestGenerator" fork="false" maxmemory="512m">
-				<arg value="${classlist}" />
 				<arg value="${timeout}" />
 				<arg value="${tests_folder}" />
 				<classpath>

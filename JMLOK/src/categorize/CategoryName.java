@@ -1,5 +1,10 @@
 package categorize;
 
+/**
+ * Class used to set the category name of each nonconformance revealed by the Detect module.
+ * @author Alysson
+ *
+ */
 public class CategoryName {
 	public static final String PRECONDITION = "precondition";
 	public static final String POSTCONDITION = "postcondition";

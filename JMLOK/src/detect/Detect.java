@@ -12,8 +12,11 @@ import org.apache.tools.ant.ProjectHelper;
 import utils.Constants;
 import utils.FileUtil;
 
-import org.jmlspecs.openjml.utils.*;
-
+/**
+ * Class used to detect nonconformances in Java/JML programs.
+ * @author Alysson
+ * @version 1.0
+ */
 public class Detect {
 
 	private boolean isJMLC;
@@ -25,6 +28,10 @@ public class Detect {
 	private File testSource = new File(Constants.TEST_DIR);
 	private File testBin = new File(Constants.TEST_BIN);
 	
+	/**
+	 * The constructor of this class, creates a new instance of Detect class, creates the jmlok directory and set the JML compiler used.
+	 * @param comp = the integer that indicates which JML compiler will be used.
+	 */
 	public Detect(int comp) {
 		while (!jmlokDir.exists()) {
 			jmlokDir.mkdirs();
@@ -43,6 +50,13 @@ public class Detect {
 		}
 	}
 	
+	/**
+	 * Method used to detect the nonconformances.
+	 * @param source = the path to classes directory.
+	 * @param lib = the path to external libraries directory.
+	 * @param timeout = the time to tests generation.
+	 * @return - The list of nonconformances detected.
+	 */
 	public Set<TestError> detect(String source, String lib, String timeout) {
 		execute(source, lib, timeout);
 		ResultProducer r = new ResultProducer();
@@ -50,17 +64,28 @@ public class Detect {
 		else return r.generateResult(Constants.OPENJML_COMPILER);
 	}
 	
+	/**
+	 * Method that executes the scripts to conformance checking.
+	 * @param sourceFolder = the path to source of files to be tested.
+	 * @param libFolder = the path to external libraries needed for the current SUT.
+	 * @param timeout = the time to tests generation.
+	 */
 	public void execute(String sourceFolder, String libFolder, String timeout) {
-		File classListFile = getClassListFile(sourceFolder);
+		getClassListFile(sourceFolder);
 		createDirectories();
 		cleanDirectories();
 		javaCompile(sourceFolder, libFolder);
 		jmlCompile(sourceFolder);
-		generateTests(libFolder, timeout, classListFile.getAbsolutePath());
+		generateTests(libFolder, timeout);
 		runTests(libFolder);
 	}
 
-	private static File getClassListFile(String sourceFolder) {
+	/**
+	 * Method used to list all classes present into the directory received as parameter.
+	 * @param sourceFolder = the directory source of the files.
+	 * @return - the file containing all classes.
+	 */
+	private File getClassListFile(String sourceFolder) {
 		List<String> listClassNames = FileUtil.listNames(sourceFolder, "", ".java");
 		StringBuffer lines = new StringBuffer();
 		for (String className : listClassNames) {
@@ -70,7 +95,10 @@ public class Detect {
 		return FileUtil.makeFile(Constants.CLASSES, lines.toString());
 	}
 	
-	public void createDirectories(){
+	/**
+	 * Method used to creates all directories to be used by the tool.
+	 */
+	private void createDirectories(){
 		while (!javaBin.exists()) {
 			javaBin.mkdirs();
 		}
@@ -85,7 +113,10 @@ public class Detect {
 		}
 	}
 	
-	public void cleanDirectories(){
+	/**
+	 * Method used to clean all directories - for the case of several executions of the tool.
+	 */
+	private void cleanDirectories(){
 		try {
 			FileUtils.cleanDirectory(javaBin);
 			FileUtils.cleanDirectory(jmlBin);
@@ -96,6 +127,11 @@ public class Detect {
 		}
 	}
 	
+	/**
+	 * Method to Java compilation of the files (needed for tests generation).
+	 * @param sourceFolder = the path to source files.
+	 * @param libFolder = the path to external libraries needed to Java compilation.
+	 */
 	public void javaCompile(String sourceFolder, String libFolder){
 		jmlLib = jmlLib + libFolder;
 		File buildFile = new File("ant\\javaCompile.xml");
@@ -111,7 +147,12 @@ public class Detect {
 		p.executeTarget("compile_project");
 	}
 	
-	public void generateTests(String libFolder, String timeout, String classList){
+	/**
+	 * Method used to generate the tests to conformance checking.
+	 * @param libFolder = the path to external libraries needed to tests generation and compilation.
+	 * @param timeout = the time to tests generation.
+	 */
+	public void generateTests(String libFolder, String timeout){
 		jmlLib = jmlLib + libFolder;
 		File buildFile = new File("ant\\generateTests.xml");
 		Project p = new Project();
@@ -120,7 +161,6 @@ public class Detect {
 		p.setUserProperty("tests_bin", Constants.TEST_BIN);
 		p.setUserProperty("lib", libFolder);
 		p.setUserProperty("jmlLib", jmlLib);
-		p.setUserProperty("classlist", classList);
 		p.setUserProperty("timeout", timeout);
 		p.setUserProperty("tests_folder", Constants.TESTS);
 		p.init();
@@ -130,6 +170,10 @@ public class Detect {
 		p.executeTarget("compile_tests");
 	}
 	
+	/**
+	 * Method used to do the JML compilation of the files.
+	 * @param sourceFolder = the source of files to be compiled.
+	 */
 	public void jmlCompile(String sourceFolder){
 		if(isJMLC){
 			File buildFile = new File("ant\\jmlcCompiler.xml");
@@ -154,7 +198,11 @@ public class Detect {
 		}
 	}
 	
-	public void runTests(String libFolder){
+	/**
+	 * Method used to run the tests with the JML oracles.
+	 * @param libFolder = the path to external libraries needed to tests execution.
+	 */
+	private void runTests(String libFolder){
 		File buildFile = new File("ant\\runTests.xml");
 		Project p = new Project();
 		p.setUserProperty("lib", libFolder);
@@ -170,25 +218,10 @@ public class Detect {
 		p.executeTarget("run_tests");
 	}
 	
-	public void execute2(String sourceFolder, String libFolder, String timeout){
-		File classListFile = getClassListFile(sourceFolder);
-		createDirectories();
-		cleanDirectories();
-		jmlCompile(sourceFolder);
-		runJMLRAC();
-	}
-	
-	public void execute3(String sourceFolder, String libFolder, String timeout) {
-		File classListFile = getClassListFile(sourceFolder);
-		//createDirectories();
-		//cleanDirectories();
-		javaCompile(sourceFolder, libFolder);
-		//jmlCompile(sourceFolder);
-		generateTests(libFolder, timeout, classListFile.getAbsolutePath());
-		runTests(libFolder);
-	}
-	
-	public void runJMLRAC(){
+	/**
+	 * Method used only for tests with openjml compiler -- will be removed
+	 */
+	private void runJMLRAC(){
 		File buildFile = new File("ant\\jmlrac.xml");
 		Project p = new Project();
 		p.setUserProperty("jmlBin", Constants.JML_BIN);
@@ -199,9 +232,13 @@ public class Detect {
 		p.executeTarget("jmlrac");
 	}
 	
+	/**
+	 * Main method - used to test purposes.
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		// usar apenas o jmlc agora.
 		Detect d = new Detect(Constants.JMLC_COMPILER);
-		d.execute3("C:\\Car", "", "1");
+		d.detect("C:\\Car", "", "1");
 	}
 }

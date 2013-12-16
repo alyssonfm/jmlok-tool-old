@@ -1,9 +1,11 @@
 package detect;
 
+import com.sun.javadoc.Type;
+
 import categorize.CategoryName;
 
 /**
- * Class to manipulate the test errors resulting in the current project
+ * Class to manipulate the test errors resulting in the current project.
  * @author Alysson Milanez
  * @version 1.0
  */
@@ -15,7 +17,7 @@ public class TestError {
 	private boolean meaningless = false;
 
 	/**
-	 * The constructor of this class, receives a name, a message and a error type to the test.
+	 * The constructor of this class, receives a name, a message and a type error to the test.
 	 * @param name = the name of current test.
 	 * @param message = the message of current test error.
 	 * @param errorType = the type of error occurred.
@@ -53,7 +55,7 @@ public class TestError {
 	}
 
 	/**
-	 * Method to set the type of error occurred.
+	 * Method used to set the type of nonconformance discovered using the jmlc compiler.
 	 * @param type = the type resulting of compiler message error.
 	 */
 	public void setTypeJmlc(String type) {
@@ -71,29 +73,25 @@ public class TestError {
 				this.type = CategoryName.MEANINGLESS;
 			} else
 				this.type = CategoryName.PRECONDITION;
-		} else if (type.contains("Evaluation")) {
-			this.type = CategoryName.EVALUATION;
 		} else if (type.contains("Constraint")) {
 			this.type = CategoryName.CONSTRAINT;
-		}
+		} else this.type = CategoryName.EVALUATION;
 	}
 	
+	/**
+	 * Method used to set the type of nonconformance discovered using the openjml compiler.
+	 * @param type = the type resulting of compiler message error.
+	 */
 	public void setTypeOpenjml(String type){
-		if (type.contains("invariant")) {
+		if (type.toLowerCase().contains("invariant")) {
 			this.type = CategoryName.INVARIANT;
-		} else if (type.contains("postcondition")) {
+		} else if (type.toLowerCase().contains("postcondition")) {
 			this.type = CategoryName.POSTCONDITION;
-		} else if (type.contains("precondition")) {
-			if (type.contains("Entry")) {
-				meaningless = true;
-				this.type = CategoryName.MEANINGLESS;
-			} else
-				this.type = CategoryName.PRECONDITION;
-		} else if (type.contains("evaluation")) {
-			this.type = CategoryName.EVALUATION;
-		} else if (type.contains("constraint")) {
+		} else if (type.toLowerCase().contains("precondition")) {
+			this.type = CategoryName.PRECONDITION;
+		} else if (type.toLowerCase().contains("constraint")) {
 			this.type = CategoryName.CONSTRAINT;
-		}
+		} else this.type = CategoryName.EVALUATION;
 	}
 
 	/**
@@ -112,7 +110,7 @@ public class TestError {
 	}
 
 	/**
-	 * Method that returns if the error is a JML RAC error or no.
+	 * Method that returns if the error is or isn't a JML RAC error.
 	 * @return the boolean that informs if the error is a JML RAC error.
 	 */
 	public boolean isJmlRac() {
@@ -120,7 +118,7 @@ public class TestError {
 	}
 
 	/**
-	 * Method that returns if the error is a meaningless error or no.
+	 * Method that returns if the error is or isn't a meaningless error.
 	 * @return the boolean that informs if the error is a meaningless error.
 	 */
 	public boolean isMeaningless() {
@@ -144,10 +142,10 @@ public class TestError {
 	}
 
 	/**
-	 * Method that returns the name of current test error.
+	 * Method that returns the String that corresponds to the current test error.
 	 */
 	public String toString() {
-		return name;
+		return name + ", "+message+", type: "+type;
 	}
 
 	@Override
