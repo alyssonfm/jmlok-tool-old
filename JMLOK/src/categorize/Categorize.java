@@ -57,7 +57,7 @@ public class Categorize {
 	}
 	
 	private static String categorizePrecondition(TestError e, String sourceFolder){
-		return "";
+		return ""; 
 	}
 	
 	private static String categorizePostcondition(TestError e, String sourceFolder){
