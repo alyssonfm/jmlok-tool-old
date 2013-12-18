@@ -39,11 +39,11 @@ public class Detect {
 		switch (comp) {
 		case Constants.JMLC_COMPILER:
 			isJMLC = true;
-			jmlLib = "C:\\JML";
+			jmlLib = Constants.JMLC_LIB;
 			break;
 		case Constants.OPENJML_COMPILER:
 			isOpenJML = true;
-			jmlLib = "C:\\openjml";
+			jmlLib = Constants.OPENJML_SRC;
 			break;
 		default:
 			break;

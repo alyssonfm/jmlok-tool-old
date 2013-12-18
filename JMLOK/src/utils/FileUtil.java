@@ -2,6 +2,7 @@ package utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.tools.ant.types.CommandlineJava.SysProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -158,6 +160,27 @@ public class FileUtil {
 		  }
 		
 		return doc;
-	} 
+	}
+	
+	/**
+	 * Method to get a content of a file and put into a String.
+	 * @param f = the file where the content will be put into the string.
+	 * @return - the string that contains the content of the file received as parameter.
+	 */
+	public static String getContent(File f){
+		StringBuilder result = new StringBuilder();
+		try {
+			BufferedReader bf = new BufferedReader(new FileReader(f));
+			while (bf.ready()) {
+				result.append(bf.readLine()+"\n");
+			}
+			bf.close();
+		} catch (IOException e) {
+			System.err.println("Error in method FileUtil.getContent()");
+		}
+		System.out.println(result.toString());
+		return result.toString();
+		
+	}
 }
 

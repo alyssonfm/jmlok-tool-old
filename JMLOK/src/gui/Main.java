@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import controller.Controller;
 import utils.Constants;
 import detect.Detect;
 
@@ -95,8 +96,7 @@ public class Main extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Detect d = new Detect(Constants.JMLC_COMPILER);
-				d.detect(sourceDir.getText(), libsDir.getText(), time.getText());
+				Controller.fillGui(Constants.JMLC_COMPILER, sourceDir.getText(), libsDir.getText(), time.getText());
 				JOptionPane.showMessageDialog(null, "Finished");
 			}
 		});

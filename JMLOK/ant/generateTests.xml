@@ -31,9 +31,6 @@
 					<fileset dir="lib">
 						<include name="**/*.jar" />
 					</fileset>
-					<fileset dir="C:/openjml/">
-						<include name="openjml.jar" />
-					</fileset>
 					<pathelement location="${source_bin}" />
 					<pathelement path="${jmlLib}" />
 				</classpath>

@@ -11,7 +11,7 @@ public class Constants {
 	//Constant to get the file separator of the System.
 	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
 	//Constants to folders created path.
-	public static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "jmlOK";
+	public static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + FILE_SEPARATOR + "jmlOK";
 	public static final String SOURCE_BIN = TEMP_DIR + FILE_SEPARATOR + "bin";
 	public static final String JML_BIN = TEMP_DIR + FILE_SEPARATOR + "jmlBin";
 	public static final String TESTS = TEMP_DIR + FILE_SEPARATOR + "tests";
@@ -28,7 +28,9 @@ public class Constants {
 	public static final int JMLC_COMPILER = 0;
 	public static final int OPENJML_COMPILER = 1;
 	//Constants that indicates the path to jml compilers.
-	public static final String JMLC_SRC = "C:\\JML\\bin";
-	public static final String OPENJML_SRC = "C:\\openjml";
+	public static final String JMLC_SRC = "C:"+FILE_SEPARATOR+"JML"+FILE_SEPARATOR+"bin";
+	public static final String OPENJML_SRC = "C:"+FILE_SEPARATOR+"openjml";
+	public static final String JMLC_LIB = "C:"+FILE_SEPARATOR+"JML";
+	
 	
 }
