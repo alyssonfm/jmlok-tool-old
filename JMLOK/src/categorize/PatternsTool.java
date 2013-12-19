@@ -1,12 +1,11 @@
 package categorize;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import utils.FileUtil;
 
 public class PatternsTool {
 	// Used to read and group Class and method detected in
@@ -15,27 +14,23 @@ public class PatternsTool {
 	// Used to capture attributes from an method declaration
 	public Pattern captureAttributes = Pattern
 			.compile("\\s*[a-zA-Z]\\w*\\s+(\\w+)\\s*,?");
-	public boolean isAtrInPrecondition(String classname, String methodname,
-			File code) throws FileNotFoundException {
-		// First, capture Precondition and the Attributes declaration from the
-		// method desired
-		Pattern capturePreAtr = Pattern.compile(
-				"//@\\s*(?:requires|pre)(.*);[.\\s]*"
-						+ "(?:private|public|protected)\\s+[\\w]+\\s+"
-						+ methodname + "\\s*\\((.*)\\)\\{", Pattern.DOTALL);
-		FileReader fr = new FileReader(code);
-		BufferedReader br = new BufferedReader(fr);
-		StringBuffer sb = new StringBuffer();
-		try {
-			while (br.ready()) {
-				sb.append(br.readLine() + "\n");
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		Matcher condAtr = capturePreAtr.matcher(sb.toString());
+	// Used to capture all variables from an attribute declaration
+	public Pattern captureVariables = Pattern.compile("(\\w+)\\s*[=]?\\s*\\w*[,]*");
+	/**
+	 * Checks if there is an attribute on the method declaration that is on
+	 * precondition specification.
+	 * @param classname name of the class searched
+	 * @param methodname name of the method searched
+	 * @param code file that contains the code where the search will be located
+	 * @return true if some attribute on the method declaration are located on the precondition expression or false.
+	 */
+	public boolean isAtrInPrecondition(String classname, String methodname,	File code) {
+		Pattern capturePreAtr = Pattern.compile(".*public\\s+class\\s+"
+				+ classname + "\\s*\\{.*" + "//@\\s*(?:requires|pre)([^;]*);.*"
+				+ "(?:private|public|protected|\\s*)\\s+[\\w]+\\s+" + methodname
+				+ "\\s*\\(([^()]*)\\)\\{", Pattern.DOTALL);
+		String lines = FileUtil.getContent(code);
+		Matcher condAtr = capturePreAtr.matcher(lines);
 		condAtr.find();
 		String precondition = condAtr.group(1);
 		String attributeDeclaration = condAtr.group(2);
@@ -46,40 +41,60 @@ public class PatternsTool {
 		}
 		return false;
 	}
+	/**
+	 * Checks if there is an attribute on the method declaration that is on
+	 * postcondition specification.
+	 * @param classname name of the class searched
+	 * @param methodname name of the method searched
+	 * @param code file that contains the code where the search will be located
+	 * @return true if some attribute on the method declaration are located on the postcondition expression or false.
+	 */
 
-	public boolean isAtrInPoscondition(String classname, String methodname,
-			File code) {
-		// First, capture Precondition and the Attributes declaration from the
-		// method desired
-		Pattern capturePreAtr = Pattern.compile("public\\s+class\\s+"
-				+ classname + "\\s*{" + ".*//@\\s*(?ensures|pos)(.*);"
-				+ ".*(?private|public|protected)\\s+[\\w]+\\s+" + methodname
-				+ "\\s*\\((.*)\\){");
-		Matcher condAtr = capturePreAtr.matcher(code.toString());
-		String poscondition = condAtr.group();
-		String attributeDeclaration = condAtr.group();
+	public boolean isAtrInPostcondition(String classname, String methodname, File code) {
+		Pattern capturePostAtr = Pattern.compile(".*public\\s+class\\s+"
+				+ classname + "\\s*\\{.*" + "//@\\s*(?:ensures|post)([^;]*);.*"
+				+ "(?:private|public|protected|\\s*)\\s+[\\w]+\\s+" + methodname
+				+ "\\s*\\(([^()]*)\\)\\{", Pattern.DOTALL);
+		String lines = FileUtil.getContent(code);
+		Matcher condAtr = capturePostAtr.matcher(lines);
+		condAtr.find();
+		String postcondition = condAtr.group(1);
+		String attributeDeclaration = condAtr.group(2);
 		Matcher searchAtr = captureAttributes.matcher(attributeDeclaration);
-		while (searchAtr.find())
-			if (poscondition.matches("[^\\w]" + searchAtr.group() + "[^\\w]"))
+		while (searchAtr.find()) {
+			if (postcondition.contains(searchAtr.group(1)))
 				return true;
-
+		}
 		return false;
 	}
-
-	public static void main(String[] args) {
-		PatternsTool p = new PatternsTool();
-		try {
-			System.out
-					.println(p
-							.isAtrInPrecondition(
-									"Carro",
-									"g",
-									new File(
-											"/home/quantus/useful_paste/sampleExample/sampleExample/Carro.java")));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public boolean isVariableInPrecondition(String classname, String methodname, File code){
+		Pattern capturePreCon = Pattern.compile(".*public\\s+class\\s+"
+				+ classname + "\\s*\\{.*" + "//@\\s*(?:requires|pre)([^;]*);.*"
+				+ "(?:private|public|protected|\\s*)\\s+[\\w]+\\s+" + methodname
+				+ "\\s*\\([^()]*\\)\\{", Pattern.DOTALL);
+		String lines = FileUtil.getContent(code);
+		Matcher condAtr = capturePreCon.matcher(lines);
+		condAtr.find();
+		String precondition = condAtr.group(1);
+		Pattern captureAttributesDeclaration = Pattern.compile("(?:private|public|protected|\\s*)" 
+				+ "\\s+[\\w]+([^;]*);");
+		Matcher condDec = captureAttributesDeclaration.matcher(lines);
+		while(condDec.find()){
+			
 		}
+		return false;
+	}
+	public static void main(String[] args) throws ClassNotFoundException {
+		PatternsTool p = new PatternsTool();
+		System.out.println("True?= " + p.isAtrInPrecondition("Carro","g",
+				new File("/home/quantus/useful_paste/sampleExample/sampleExample/Carro.java")));
+
+		Class<?> use = Carro.class;
+		Field[] fields = use.getDeclaredFields();
+		for(Field f : fields){
+			System.out.println(f.toString());
+		}
+	
 	}
 
 }
