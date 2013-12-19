@@ -24,6 +24,18 @@ public class PatternsTool {
 	public PatternsTool(String dir){
 		this.srcDir = dir;
 	}
+	
+	/**
+	 * Method that returns the complete path to class, whose class name was received as parameter.
+	 * @param className - the name of the class.
+	 * @return - the full path to the file.
+	 */
+	private String getPathFromFile(String className){
+		String name = className.replace('.', '/');
+		name += ".java";
+		return srcDir+name;
+	}
+	
 	/**
 	 * Checks if there is an attribute on the method declaration that is on
 	 * precondition specification.

@@ -172,6 +172,7 @@ public class FileUtil {
 		ArrayList<String> variables = new ArrayList<String>();
 		try {
 			Class<?> clazz = Class.forName(path, true, new CustomClassLoader());
+			System.out.println(clazz.getSimpleName());
 			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {
 				String aux = field.toString();
@@ -184,5 +185,6 @@ public class FileUtil {
 		return variables;
 		
 	}
+
 }
 

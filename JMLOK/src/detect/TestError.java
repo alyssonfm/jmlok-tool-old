@@ -147,6 +147,31 @@ public class TestError {
 	public String toString() {
 		return name + ", "+message+", type: "+type;
 	}
+	
+	/**
+	 * Method that returns the class name for the current test error.
+	 * @return - the string corresponding to the class name with nonconformance.
+	 */
+	public String getClassName(){
+		String result = "";
+		if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
+			result = this.message.substring(this.message.lastIndexOf(" ")+1, this.message.length());
+			result = result.substring(0, result.lastIndexOf("."));
+		}
+		return result;
+	}
+	
+	/**
+	 * Method that returns the method name for the current test error.
+	 * @return - the string corresponding to the method name with nonconformance.
+	 */
+	public String getMethodName(){
+		String result = "";
+		if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
+			result = this.message.substring(this.message.lastIndexOf(".")+1, this.message.length());
+		}
+		return result;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
