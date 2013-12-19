@@ -10,13 +10,20 @@ public class PatternsTool {
 	private static String PRECONDITION_INDICATOR = "requires|pre";
 	private static String POSTCONDITION_INDICATOR = "ensures|post";
 	private static String INVARIANT_INDICATOR = "invariant";
-	
+	private String srcDir;
 	// Used to read and group Class and method detected in
 	public Pattern captureClassMethodInPrePos = Pattern
 			.compile("([A-Z][\\w]*)[\\.]([\\w]+)");
 	// Used to capture attributes from an method declaration
 	public Pattern captureAttributes = Pattern
 			.compile("\\s*[a-zA-Z]\\w*\\s+(\\w+)\\s*,?");
+	/**
+	 * Constructs an PatternsTool object with the directory of the src project paste
+	 * @param dir directory of the src project paste
+	 */
+	public PatternsTool(String dir){
+		this.srcDir = dir;
+	}
 	/**
 	 * Checks if there is an attribute on the method declaration that is on
 	 * precondition specification.
@@ -120,11 +127,4 @@ public class PatternsTool {
 		return captureCon;
 	}
 	
-	public static void main(String[] args) throws ClassNotFoundException {
-		PatternsTool p = new PatternsTool();
-		System.out.println("True?= " + p.isAtrInPrecondition("Carro","g",
-				"/home/quantus/useful_paste/sampleExample/sampleExample/Carro.java"));
-
-	}
-
 }
