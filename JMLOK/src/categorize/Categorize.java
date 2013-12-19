@@ -1,10 +1,10 @@
 package categorize;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import utils.Constants;
+import org.apache.tools.ant.types.CommandlineJava.SysProperties;
+
 import utils.FileUtil;
 import detect.Detect;
 import detect.TestError;
@@ -57,7 +57,7 @@ public class Categorize {
 	}
 	
 	private static String categorizePrecondition(TestError e, String sourceFolder){
-		return ""; 
+		return "";
 	}
 	
 	private static String categorizePostcondition(TestError e, String sourceFolder){

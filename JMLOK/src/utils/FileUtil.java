@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,23 +164,25 @@ public class FileUtil {
 	}
 	
 	/**
-	 * Method to get a content of a file and put into a String.
-	 * @param f = the file where the content will be put into the string.
-	 * @return - the string that contains the content of the file received as parameter.
+	 * Method that gets all variables from a class received as parameter.
+	 * @param path = the path for the class that the variables will be got.
+	 * @return = the list of all variables from the class received as parameter.
 	 */
-	public static String getContent(File f){
-		StringBuilder result = new StringBuilder();
+	public static ArrayList<String> getVariablesFromClass(String path){
+		ArrayList<String> variables = new ArrayList<String>();
 		try {
-			BufferedReader bf = new BufferedReader(new FileReader(f));
-			while (bf.ready()) {
-				result.append(bf.readLine()+"\n");
+			Class<?> clazz = Class.forName(path, true, new CustomClassLoader());
+			Field[] fields = clazz.getDeclaredFields();
+			for (Field field : fields) {
+				String aux = field.toString();
+				aux = aux.substring(aux.lastIndexOf(".")+1, aux.length());
+				variables.add(aux);
 			}
-			bf.close();
-		} catch (IOException e) {
-			System.err.println("Error in method FileUtil.getContent()");
+		} catch (ClassNotFoundException e) {
+			//System.err.println("Error in method FileUtil.getVariablesFromClass()");
+			e.printStackTrace();
 		}
-		System.out.println(result.toString());
-		return result.toString();
+		return variables;
 		
 	}
 }
