@@ -11,7 +11,7 @@ public class CustomClassLoader extends ClassLoader {
         String fullName = name.replace('.', '/');
         fullName += ".class";
 
-        String path = basePath + fullName ;
+        String path = basePath + fullName;
         
         try {
             FileInputStream fis = new FileInputStream(path);

@@ -79,6 +79,6 @@ public class Categorize {
 	
 	public static void main(String[] args) {
 		//categorize("C:\\Car", "", "1", Constants.JMLC_COMPILER);
-		// eh bom sempre comentarmos os codigos de teste antes de fazer push e commit.
+		// eh bom sempre comentarmos os codigos de teste antes de fazer push e commit. 
 	}
 }
