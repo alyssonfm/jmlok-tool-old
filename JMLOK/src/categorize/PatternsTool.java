@@ -7,9 +7,10 @@ import java.util.regex.Pattern;
 import utils.FileUtil;
 
 public class PatternsTool {
-	private static String PRECONDITION_INDICATOR = "requires|pre";
-	private static String POSTCONDITION_INDICATOR = "ensures|post";
-	private static String INVARIANT_INDICATOR = "invariant";
+	private static String PRECONDITION_INDICATOR = "requires|pre|requires_redundantly|pre_redundantly";
+	private static String POSTCONDITION_INDICATOR = "ensures|post|ensures_redundantly|post_redundantly";
+	private static String INVARIANT_INDICATOR = "invariant|invariant_redundantly";
+	private static String CONSTRAINT_INDICATOR = "constraint|constraint_redundantly";
 	private String srcDir;
 	// Used to read and group Class and method detected in
 	public Pattern captureClassMethodInPrePos = Pattern
@@ -102,7 +103,7 @@ public class PatternsTool {
 		return false;
 	}
 	/**
-	 * Checks if there is an variable from the class that are on the postcondition
+	 * Checks if there is an variable from the class that is on the postcondition
 	 * specification expression.
 	 * @param classname name of the class searched
 	 * @param methodname name of the method searched
@@ -137,6 +138,36 @@ public class PatternsTool {
 				+ "(?:private|public|protected|\\s*)\\s+[\\w]+\\s+" + methodname
 				+ "\\s*\\(([^()]*)\\)\\{", Pattern.DOTALL);
 		return captureCon;
+	}
+
+	/**
+	 * Method used to check if a likely cause of a nonconformance is weak precondition.
+	 * @param className
+	 * @param methodName
+	 * @param sourceFolder
+	 * @return
+	 */
+	public boolean checkWeakPrecondition(String className, String methodName,
+			String sourceFolder) {
+		return isRequiresTrue(className, methodName, sourceFolder) || isAttModifiedOnMethod(className, methodName, sourceFolder);
+	}
+
+	private boolean isAttModifiedOnMethod(String className, String methodName,
+			String sourceFolder) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean isRequiresTrue(String className, String methodName,
+			String sourceFolder) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean checkNull(String className, String methodName,
+			String sourceFolder) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }

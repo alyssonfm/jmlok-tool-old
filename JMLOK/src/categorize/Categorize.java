@@ -3,9 +3,7 @@ package categorize;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.tools.ant.types.CommandlineJava.SysProperties;
-
-import utils.FileUtil;
+import utils.Constants;
 import detect.Detect;
 import detect.TestError;
 
@@ -55,30 +53,54 @@ public class Categorize {
 		}
 		return nonconformances;
 	}
-	
+	/**
+	 * Method that adds a likely cause for a nonconformance of precondition. Receives a test error - the nonconformance - and the source folder that contains the class that has a nonconformance.
+	 * @param e - the nonconformance
+	 * @param sourceFolder - the folder that contains the class with a nonconformance.
+	 * @return the string that corresponds the likely cause for this precondition error.
+	 */
 	private static String categorizePrecondition(TestError e, String sourceFolder){
-		return "";
+		String result = "";
+		PatternsTool p = new PatternsTool(sourceFolder);
+		if(p.isAtrInPrecondition(e.getClassName(), e.getMethodName(), sourceFolder)) result = Cause.STRONG_PRE;
+		else if(p.isVariableInPrecondition(e.getClassName(), e.getMethodName(), sourceFolder)) result = Cause.STRONG_PRE;
+		else result = Cause.WEAK_POST;
+		return result;
 	}
 	
 	private static String categorizePostcondition(TestError e, String sourceFolder){
-		return "";
+		String result = "";
+		PatternsTool p = new PatternsTool(sourceFolder);
+		if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName(), sourceFolder)) result = Cause.WEAK_PRE;
+		else result = Cause.STRONG_POST;
+		return result;
 	}
 	
 	private static String categorizeInvariant(TestError e, String sourceFolder){
-		return "";
+		String result = "";
+		PatternsTool p = new PatternsTool(sourceFolder);
+		if(p.checkNull(e.getClassName(), e.getMethodName(), sourceFolder)) result = Cause.NULL_RELATED;
+		else if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName(), sourceFolder)) result = Cause.WEAK_PRE;
+		else result = Cause.STRONG_INV;
+		return result;
 	}
 	
 	private static String categorizeConstraint(TestError e, String sourceFolder){
-		return "";
+		String result = "";
+		PatternsTool p = new PatternsTool(sourceFolder);
+		if(p.checkNull(e.getClassName(), e.getMethodName(), sourceFolder)) result = Cause.NULL_RELATED;
+		else if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName(), sourceFolder)) result = Cause.WEAK_PRE;
+		else result = Cause.STRONG_CONST;
+		return result;
 	}
 	
 	private static String categorizeEvaluation(TestError e, String sourceFolder){
-		String result = "This an "+Cause.BAD_FORMMED_EXP+" or "+Cause.NOT_EVAL_EXP;
+		String result = "This an expression that "+Cause.NOT_EVAL_EXP;
 		return result;
 	}
 	
 	public static void main(String[] args) {
 		//categorize("C:\\Car", "", "1", Constants.JMLC_COMPILER);
-		// eh bom sempre comentarmos os codigos de teste antes de fazer push e commit. 
+		// eh bom sempre comentarmos os codigos de teste antes de fazer push e commit.
 	}
 }
