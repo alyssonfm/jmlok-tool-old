@@ -157,6 +157,10 @@ public class TestError {
 		if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
 			result = this.message.substring(this.message.lastIndexOf(" ")+1, this.message.length());
 			result = result.substring(0, result.lastIndexOf("."));
+		} else if (this.type.equals(CategoryName.INVARIANT) || this.type.equals(CategoryName.CONSTRAINT)) {
+			String aux = this.message;
+			String[] text = aux.split(" ");
+			result = text[2].substring(0, text[2].lastIndexOf("."));
 		}
 		return result;
 	}
@@ -169,6 +173,12 @@ public class TestError {
 		String result = "";
 		if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
 			result = this.message.substring(this.message.lastIndexOf(".")+1, this.message.length());
+		} else if(this.type.equals(CategoryName.INVARIANT)){
+			result = getClassName();
+		} else if(this.type.equals(CategoryName.CONSTRAINT)){
+			String aux = this.message;
+			String[] text = aux.split(" ");
+			result = text[2].substring(text[2].lastIndexOf(".")+1, text[2].indexOf("@"));
 		}
 		return result;
 	}
@@ -190,6 +200,4 @@ public class TestError {
 		return getMessage().length()+getType().length();
 	}
 	
-	
-
 }
