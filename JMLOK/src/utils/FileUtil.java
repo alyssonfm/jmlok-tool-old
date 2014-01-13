@@ -2,11 +2,11 @@ package utils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +19,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.tools.ant.types.CommandlineJava.SysProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -172,7 +171,6 @@ public class FileUtil {
 		ArrayList<String> variables = new ArrayList<String>();
 		try {
 			Class<?> clazz = Class.forName(path, true, new CustomClassLoader());
-			System.out.println(clazz.getSimpleName());
 			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {
 				String aux = field.toString();
@@ -183,7 +181,6 @@ public class FileUtil {
 			System.err.println("Error in method FileUtil.getVariablesFromClass()");
 		}
 		return variables;
-		
 	}
 
 }
