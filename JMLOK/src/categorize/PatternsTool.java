@@ -165,6 +165,12 @@ public class PatternsTool {
 		return isRequiresTrue(className, methodName) || isAttModifiedOnMethod(className, methodName);
 	}
 
+	/**
+	 * Method that checks if there are some parameter of the method modified in the method body.
+	 * @param className - the name of the class that contains a nonconformance.
+	 * @param methodName - the name of the method that contains a nonconformance.
+	 * @return true if there are some parameter modified, false otherwise.
+	 */
 	private boolean isAttModifiedOnMethod(String className, String methodName) {
 		String lines = FileUtil.readFile(getPathFromFile(className));
 		
@@ -205,10 +211,31 @@ public class PatternsTool {
 		return className.substring(className.lastIndexOf(".")+1, className.length());
 	}
 	
+	/**
+	 * Auxiliary method used to get all names of parameters from a method received as parameter.
+	 * @param className - the name of the class that contains the method that will get the names of parameters.
+	 * @param methodName - the name of the method whose parameters' names we want.
+	 * @return the list of parameters' names from the method.
+	 */
+	private ArrayList<String> getParameterNames(String className, String methodName){
+		ArrayList<String> result = new ArrayList<String>();
+		Pattern captureAtt = captureJMLFromAnMethodAndAtr(className, methodName);
+		String lines = FileUtil.readFile(getPathFromFile(className));
+		Matcher condAtr = captureAtt.matcher(lines);
+		condAtr.find();
+		String attributeDeclaration = condAtr.group(condAtr.groupCount());
+		Matcher searchAtr = captureAttributes.matcher(attributeDeclaration);
+		while (searchAtr.find()) {
+			result.add(searchAtr.group(1));
+		}
+		return result;
+	}
+	
 	public static void main(String[] args){
-		/*PatternsTool pt = new PatternsTool("C:\\users\\Alysson\\Desktop");
-		System.out.println("True, " + String.valueOf(pt.isAtrInPrecondition("sample.Carro", "g")));
-		System.out.println("False, " + String.valueOf(pt.isAtrInPostcondition("sample.Carro", "g")));
+		//PatternsTool pt = new PatternsTool("C:\\users\\Alysson\\Desktop");
+		//System.out.println("True, " + String.valueOf(pt.isAtrInPrecondition("sample.Carro", "f")));
+		//System.out.println(pt.getParameterNames("sample.Carro", "f").toString());
+		/*System.out.println("False, " + String.valueOf(pt.isAtrInPostcondition("sample.Carro", "g")));
 		System.out.println("True, " + String.valueOf(pt.isVariableInPrecondition("sample.Carro", "g")));
 		System.out.println("True, "+ String.valueOf(pt.isVariableInPostcondition("sample.Carro", "g")));
 		System.out.println("True, "+ String.valueOf(pt.isRequiresTrue("sample.Carro", "f")));*/
