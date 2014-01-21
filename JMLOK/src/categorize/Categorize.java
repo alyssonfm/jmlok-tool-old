@@ -81,9 +81,12 @@ public class Categorize {
 	private static String categorizePrecondition(TestError e, String sourceFolder){
 		String result = "";
 		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.isAtrInPrecondition(e.getClassName(), e.getMethodName())) result = Cause.STRONG_PRE;
-		else if(p.isVariableInPrecondition(e.getClassName(), e.getMethodName())) result = Cause.STRONG_PRE;
-		else result = Cause.WEAK_POST;
+		if(p.isAtrInPrecondition(e.getClassName(), e.getMethodName())) 
+			result = Cause.STRONG_PRE;
+		else if(p.isVariableInPrecondition(e.getClassName(), e.getMethodName())) 
+			result = Cause.STRONG_PRE;
+		else 
+			result = Cause.WEAK_POST;
 		return result;
 	}
 	
@@ -97,8 +100,10 @@ public class Categorize {
 	private static String categorizePostcondition(TestError e, String sourceFolder){
 		String result = "";
 		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) result = Cause.WEAK_PRE;
-		else result = Cause.STRONG_POST;
+		if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 
+			result = Cause.WEAK_PRE;
+		else 
+			result = Cause.STRONG_POST;
 		return result;
 	}
 	
@@ -112,9 +117,12 @@ public class Categorize {
 	private static String categorizeInvariant(TestError e, String sourceFolder){
 		String result = "";
 		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.checkNull(e.getClassName(), e.getMethodName())) result = Cause.NULL_RELATED;
-		else if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) result = Cause.WEAK_PRE;
-		else result = Cause.STRONG_INV;
+		if(p.checkNull(e.getClassName())) 
+			result = Cause.NULL_RELATED;
+		else if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 
+			result = Cause.WEAK_PRE;
+		else 
+			result = Cause.STRONG_INV;
 		return result;
 	}
 	
@@ -128,9 +136,12 @@ public class Categorize {
 	private static String categorizeConstraint(TestError e, String sourceFolder){
 		String result = "";
 		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.checkNull(e.getClassName(), e.getMethodName())) result = Cause.NULL_RELATED;
-		else if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) result = Cause.WEAK_PRE;
-		else result = Cause.STRONG_CONST;
+		if(p.checkNull(e.getClassName())) 
+			result = Cause.NULL_RELATED;
+		else if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 
+			result = Cause.WEAK_PRE;
+		else 
+			result = Cause.STRONG_CONST;
 		return result;
 	}
 	
