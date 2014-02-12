@@ -1,8 +1,23 @@
 package categorize;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.tools.JavaFileObject.Kind;
+
+import org.jmlspecs.openjml.API;
+import org.jmlspecs.openjml.Factory;
+import org.jmlspecs.openjml.IAPI;
+import org.jmlspecs.openjml.JmlTree;
+import org.jmlspecs.openjml.JmlTree.JmlClassDecl;
+import org.jmlspecs.openjml.JmlTree.JmlMethodDecl;
+import org.jmlspecs.openjml.JmlTree.JmlSpecificationCase;
+
+import com.sun.source.tree.Tree;
+import com.sun.tools.javac.code.Kinds.KindName;
+import com.sun.tools.javac.tree.JCTree;
 
 import utils.Constants;
 import utils.FileUtil;
@@ -268,7 +283,6 @@ public class PatternsTool {
 				+ "\\s+(?:<<=|>>=|>>>=|\\|=|&=|\\+=|-=|/=|\\*=|%=|=)[^;]+;|"
 				+ "\\+\\+" + parameters + "|--" + parameters + "|" + parameters
 				+ "\\+\\+|" + parameters + "--");
-		System.out.println(codeMethod);
 		Matcher takeMod = getMod.matcher(codeMethod);
 		if (takeMod.find())
 			return true;
@@ -384,7 +398,6 @@ public class PatternsTool {
 		String lines = FileUtil.readFile(getPathFromFile(className));
 		String constructor = getConstructorCode(className, lines);
 		ArrayList<String> varList = FileUtil.getVariablesFromClass(className);
-		System.out.println(constructor);
 		if (constructor == "" && varList.size() > 0) {
 			return true;
 		}
@@ -437,10 +450,9 @@ public class PatternsTool {
 		return result;
 	}
 
-	public static void main(String[] args) {
-		/*PatternsTool pt = new PatternsTool("/home/quantus/git/jmlok-tool/src");
-		String lines = FileUtil.readFile(pt
-				.getPathFromFile("sampleExample.Carro"));
-		System.out.println(pt.checkNull("sampleExample.Carro"));*/
+	public static void main(String[] args) throws Exception {
+	//	Examinator p = new Examinator("/home/quantus/git/jmlok-tool/src/");
+		//p.setPrincipalClassName("sampleExample.Carro");
+		//System.out.println(p.checkStrongPrecondition("Carro"));
 	}
 }

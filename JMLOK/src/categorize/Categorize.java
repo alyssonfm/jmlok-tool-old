@@ -13,6 +13,8 @@ import detect.TestError;
  */
 public class Categorize {
 
+	private Examinator examine; 
+	
 	/**
 	 * Method that receives the source folder, the library folder, the timeout and the compiler and 
 	 * returns a set of nonconformances with category and likely cause. This is the principal method of the Categorize module, 
@@ -23,11 +25,12 @@ public class Categorize {
 	 * @param compiler - the compiler that will be used for conformance check of this SUT.
 	 * @return a set of nonconformances with categories and likely causes.
 	 */
-	public static Set<Nonconformance> categorize(String sourceFolder, String libFolder, String timeout, int compiler){
+	public Set<Nonconformance> categorize(String sourceFolder, String libFolder, String timeout, int compiler){
 		Set<Nonconformance> nonconformances = new HashSet<Nonconformance>();
 		Nonconformance n = new Nonconformance();
 		Detect d = new Detect(compiler);
 		Set<TestError> errors = d.detect(sourceFolder, libFolder, timeout);
+		this.examine = new Examinator(sourceFolder);
 		for(TestError te : errors){
 			switch (te.getType()) {
 			case CategoryName.PRECONDITION:
@@ -78,16 +81,12 @@ public class Categorize {
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
 	 * @return the string that corresponds the likely cause for this precondition error.
 	 */
-	private static String categorizePrecondition(TestError e, String sourceFolder){
-		String result = "";
-		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.isAtrInPrecondition(e.getClassName(), e.getMethodName())) 
-			result = Cause.STRONG_PRE;
-		else if(p.isVariableInPrecondition(e.getClassName(), e.getMethodName())) 
-			result = Cause.STRONG_PRE;
+	private String categorizePrecondition(TestError e, String sourceFolder){
+		this.examine.setPrincipalClassName(e.getClassName());
+		if(this.examine.checkStrongPrecondition(e.getMethodName())) 
+			return Cause.STRONG_PRE;
 		else 
-			result = Cause.WEAK_POST;
-		return result;
+			return Cause.WEAK_POST;
 	}
 	
 	/**

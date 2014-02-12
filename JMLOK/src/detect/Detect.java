@@ -14,11 +14,12 @@ import utils.FileUtil;
 
 /**
  * Class used to detect nonconformances in Java/JML programs.
- * @author Alysson
+ * @author Alysson Milanez and Dennis Souza.
  * @version 1.0
  */
 public class Detect {
 
+	private boolean isLinux;
 	private boolean isJMLC;
 	private boolean isOpenJML;
 	private String jmlLib;
@@ -48,6 +49,7 @@ public class Detect {
 		default:
 			break;
 		}
+		isLinux = System.getProperty("os.name").equals("Linux");
 	}
 	
 	/**
@@ -134,7 +136,7 @@ public class Detect {
 	 */
 	public void javaCompile(String sourceFolder, String libFolder){
 		jmlLib = jmlLib + libFolder;
-		File buildFile = new File("ant\\javaCompile.xml");
+		File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "javaCompile.xml");
 		Project p = new Project();
 		p.setUserProperty("source_folder", sourceFolder);
 		p.setUserProperty("source_bin", Constants.SOURCE_BIN);
@@ -154,7 +156,7 @@ public class Detect {
 	 */
 	public void generateTests(String libFolder, String timeout){
 		jmlLib = jmlLib + libFolder;
-		File buildFile = new File("ant\\generateTests.xml");
+		File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "generateTests.xml");
 		Project p = new Project();
 		p.setUserProperty("source_bin", Constants.SOURCE_BIN);
 		p.setUserProperty("tests_src", Constants.TEST_DIR);
@@ -175,18 +177,43 @@ public class Detect {
 	 * @param sourceFolder = the source of files to be compiled.
 	 */
 	public void jmlCompile(String sourceFolder){
+		if(FileUtil.hasDirectories(sourceFolder)){
+			if(isJMLC){
+				File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "jmlcCompiler.xml");
+				Project p = new Project();
+				p.setUserProperty("source_folder", sourceFolder);
+				p.setUserProperty("jmlBin", Constants.JML_BIN);
+				p.setUserProperty("jmlcExec", (isLinux)?(Constants.JMLC_SRC + "jmlc-unix"):("jmlc.bat"));
+				p.init();
+				ProjectHelper helper = ProjectHelper.getProjectHelper();
+				p.addReference("ant.projectHelper", helper);
+				helper.parse(p, buildFile);
+				p.executeTarget("jmlc");
+			} else if(isOpenJML){
+				File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "openjmlCompiler.xml");
+				Project p = new Project();
+				p.setUserProperty("source_folder", sourceFolder);
+				p.setUserProperty("jmlBin", Constants.JML_BIN);
+				p.init();
+				ProjectHelper helper = ProjectHelper.getProjectHelper();
+				p.addReference("ant.projectHelper", helper);
+				helper.parse(p, buildFile);
+				p.executeTarget("openJML");
+			}
+		}
 		if(isJMLC){
-			File buildFile = new File("ant\\jmlcCompiler.xml");
+			File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "jmlcCompiler2.xml");
 			Project p = new Project();
 			p.setUserProperty("source_folder", sourceFolder);
 			p.setUserProperty("jmlBin", Constants.JML_BIN);
+			p.setUserProperty("jmlcExec", (isLinux)?(Constants.JMLC_SRC + "jmlc-unix"):("jmlc.bat"));
 			p.init();
 			ProjectHelper helper = ProjectHelper.getProjectHelper();
 			p.addReference("ant.projectHelper", helper);
 			helper.parse(p, buildFile);
 			p.executeTarget("jmlc");
 		} else if(isOpenJML){
-			File buildFile = new File("ant\\openjmlCompiler.xml");
+			File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "openjmlCompiler2.xml");
 			Project p = new Project();
 			p.setUserProperty("source_folder", sourceFolder);
 			p.setUserProperty("jmlBin", Constants.JML_BIN);
@@ -203,7 +230,7 @@ public class Detect {
 	 * @param libFolder = the path to external libraries needed to tests execution.
 	 */
 	private void runTests(String libFolder){
-		File buildFile = new File("ant\\runTests.xml");
+		File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "runTests.xml");
 		Project p = new Project();
 		p.setUserProperty("lib", libFolder);
 		p.setUserProperty("jmlBin", Constants.JML_BIN);
@@ -219,26 +246,13 @@ public class Detect {
 	}
 	
 	/**
-	 * Method used only for tests with openjml compiler -- will be removed
-	 */
-	private void runJMLRAC(){
-		File buildFile = new File("ant\\jmlrac.xml");
-		Project p = new Project();
-		p.setUserProperty("jmlBin", Constants.JML_BIN);
-		p.init();
-		ProjectHelper helper = ProjectHelper.getProjectHelper();
-		p.addReference("ant.projectHelper", helper);
-		helper.parse(p, buildFile);
-		p.executeTarget("jmlrac");
-	}
-	
-	/**
 	 * Main method - used to test purposes.
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// usar apenas o jmlc agora.
+		//usar apenas o jmlc agora.
+		/*int x = 10;
 		Detect d = new Detect(Constants.JMLC_COMPILER);
-		d.detect("C:\\Car", "", "1");
+		d.detect("/home/quantus/useful_paste/sampleExample/", "", "1");*/
 	}
 }

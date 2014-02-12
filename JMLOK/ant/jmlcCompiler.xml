@@ -3,9 +3,9 @@
 		<echo>
             Compilando com JMLC
         </echo>
-		<exec command="jmlc.bat">		
+		<exec command="{jmlcExec}">		
 			<arg value="--recursive" />
-			<arg value="${source_folder}" />			
+			<arg value="${source_folder}" />
 			
 			<arg value="-d" />			
 			<arg value="${jmlBin}" />

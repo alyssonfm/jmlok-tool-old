@@ -1,7 +1,5 @@
 package detect;
 
-import com.sun.javadoc.Type;
-
 import categorize.CategoryName;
 
 /**
@@ -187,6 +185,7 @@ public class TestError {
 	public boolean equals(Object obj) {
 		if((obj instanceof TestError) 
 				&& ((TestError) obj).getMessage().equalsIgnoreCase(this.getMessage()) 
+				&& ((TestError) obj).getName().equalsIgnoreCase(this.getName()) 
 				&& ((TestError) obj).getType().equalsIgnoreCase(this.getType()))
 		{ 
 			return true;
