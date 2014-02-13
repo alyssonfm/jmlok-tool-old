@@ -96,7 +96,7 @@ public class Main extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Controller.fillGui(Constants.JMLC_COMPILER, sourceDir.getText(), libsDir.getText(), time.getText());
+				Controller.prepareToDetectPhase(Constants.JMLC_COMPILER, sourceDir.getText(), libsDir.getText(), time.getText());
 				JOptionPane.showMessageDialog(null, "Finished");
 			}
 		});

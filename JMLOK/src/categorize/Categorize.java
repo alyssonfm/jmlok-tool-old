@@ -8,7 +8,7 @@ import detect.TestError;
 
 /**
  * Class used to categorize the nonconformances discovered into the SUT.
- * @author Alysson Milanez
+ * @author Alysson Milanez and Dennis Souza.
  *
  */
 public class Categorize {
@@ -16,20 +16,16 @@ public class Categorize {
 	private Examinator examine; 
 	
 	/**
-	 * Method that receives the source folder, the library folder, the timeout and the compiler and 
+	 * Method that receives the set of nonconformances, and the source folder and 
 	 * returns a set of nonconformances with category and likely cause. This is the principal method of the Categorize module, 
 	 * because in this method we categorize all nonconformances discovered in Detect module.
+	 * @param errors - the set of nonconformances detected by the Detect module.
 	 * @param sourceFolder - the source folder of the SUT.
-	 * @param libFolder - the external libraries needed for the current SUT.
-	 * @param timeout - the time used to tests generation - for the tests generation.
-	 * @param compiler - the compiler that will be used for conformance check of this SUT.
 	 * @return a set of nonconformances with categories and likely causes.
 	 */
-	public Set<Nonconformance> categorize(String sourceFolder, String libFolder, String timeout, int compiler){
+	public Set<Nonconformance> categorize(Set<TestError> errors, String sourceFolder){
 		Set<Nonconformance> nonconformances = new HashSet<Nonconformance>();
 		Nonconformance n = new Nonconformance();
-		Detect d = new Detect(compiler);
-		Set<TestError> errors = d.detect(sourceFolder, libFolder, timeout);
 		this.examine = new Examinator(sourceFolder);
 		for(TestError te : errors){
 			switch (te.getType()) {
