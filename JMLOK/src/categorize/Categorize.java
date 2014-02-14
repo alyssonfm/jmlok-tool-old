@@ -33,6 +33,7 @@ public class Categorize {
 				n.setType(new Precondition());
 				n.setTest(te.getName());
 				n.setCause(categorizePrecondition(te, sourceFolder));
+				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
 				break;
 				
@@ -40,6 +41,7 @@ public class Categorize {
 				n.setType(new Postcondition());
 				n.setTest(te.getName());
 				n.setCause(categorizePostcondition(te, sourceFolder));
+				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
 				break;
 
@@ -47,6 +49,7 @@ public class Categorize {
 				n.setType(new Invariant());
 				n.setTest(te.getName());
 				n.setCause(categorizeInvariant(te, sourceFolder));
+				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
 				break;
 				
@@ -54,6 +57,7 @@ public class Categorize {
 				n.setType(new Constraint());
 				n.setTest(te.getName());
 				n.setCause(categorizeConstraint(te, sourceFolder));
+				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
 				break;
 				
@@ -61,6 +65,7 @@ public class Categorize {
 				n.setCause(categorizeEvaluation(te, sourceFolder));
 				n.setTest(te.getName());
 				n.setType(new Evaluation());
+				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
 				break;
 				
@@ -148,7 +153,12 @@ public class Categorize {
 	 * @return the string that corresponds the likely cause for this evaluation error.
 	 */
 	private static String categorizeEvaluation(TestError e, String sourceFolder){
-		String result = "This an expression that "+Cause.NOT_EVAL_EXP;
+		String result = "";
+		PatternsTool p = new PatternsTool(sourceFolder);
+		if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 
+			result = Cause.WEAK_PRE;
+		else 
+			result = Cause.STRONG_POST;
 		return result;
 	}
 	

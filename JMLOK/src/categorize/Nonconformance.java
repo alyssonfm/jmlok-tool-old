@@ -2,14 +2,18 @@ package categorize;
 
 /**
  * Class that represents a nonconformance.
- * @author Alysson
+ * @author Alysson Milanez and Dennis Souza.
  *
  */
 public class Nonconformance {
 
 	private Category type;
-	private String cause;
-	private String test;
+	private String cause = "";
+	private String test = "";
+	private String testFile = "";
+	private String className = "";
+	private String methodName = "";
+	
 	
 	public Nonconformance() {
 	}
@@ -36,5 +40,29 @@ public class Nonconformance {
 
 	public void setTest(String test) {
 		this.test = test;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+	public String getTestFile() {
+		return testFile;
+	}
+
+	public void setTestFile(String testFile) {
+		this.testFile = testFile;
 	}
 }

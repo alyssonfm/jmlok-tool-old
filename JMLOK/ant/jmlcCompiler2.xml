@@ -3,7 +3,7 @@
 		<echo>
             Compilando com JMLC
         </echo>
-		<exec command="{jmlcExec}">		
+		<exec command="${jmlcExec}">		
 			<arg value="${source_folder}"/>			
 			
 			<arg value="-S"/>

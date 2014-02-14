@@ -4,13 +4,16 @@ import categorize.CategoryName;
 
 /**
  * Class to manipulate the test errors resulting in the current project.
- * @author Alysson Milanez
+ * @author Alysson Milanez and Dennis Souza
  * @version 1.0
  */
 public class TestError {
-	private String type;
-	private String message;
+	private String type = "";
+	private String message = "";
+	private String className = "";
+	private String methodName = "";
 	private String name = "";
+	private String testFile = "";
 	private boolean jmlRac = true;
 	private boolean meaningless = false;
 
@@ -20,9 +23,12 @@ public class TestError {
 	 * @param message = the message of current test error.
 	 * @param errorType = the type of error occurred.
 	 */
-	public TestError(String name, String message, String type) {
-		this.setMessage(message);
+	public TestError(String name, String testFile, String message, String type) {
 		this.setTypeJmlc(type);
+		this.setMessage(message);
+		this.setClassName();
+		this.setTestFile(testFile);
+		this.setMethodName();
 		this.setName(name);
 	}
 	
@@ -32,8 +38,10 @@ public class TestError {
 	 * @param type - the type of the error.
 	 */
 	public TestError(String message, String type){
-		this.setMessage(message);
 		this.setTypeOpenjml(type);
+		this.setMessage(message);
+		this.setClassName();
+		this.setMethodName();
 	}
 	
 	/**
@@ -147,20 +155,42 @@ public class TestError {
 	}
 	
 	/**
+	 * Method that sets the class name for the current test error.
+	 */
+	public void setClassName(){
+		String result = "";
+		String aux = this.message;
+		String[] text = aux.split(" ");
+		if(this.type.equals(CategoryName.EVALUATION)) result = text[3].substring(text[3].indexOf(";")+1, text[3].indexOf(".java"));
+		result = text[2].substring(0, text[2].indexOf("."));
+		this.className = result;
+	}
+	
+	/**
 	 * Method that returns the class name for the current test error.
 	 * @return - the string corresponding to the class name with nonconformance.
 	 */
 	public String getClassName(){
+		return this.className;
+	}
+	
+	
+	/**
+	 * Method that sets the method name for the current test error.
+	 */
+	public void setMethodName(){
 		String result = "";
+		String aux = this.message;
+		String[] text = aux.split(" ");
 		if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
-			result = this.message.substring(this.message.lastIndexOf(" ")+1, this.message.length());
-			result = result.substring(0, result.lastIndexOf("."));
-		} else if (this.type.equals(CategoryName.INVARIANT) || this.type.equals(CategoryName.CONSTRAINT)) {
-			String aux = this.message;
-			String[] text = aux.split(" ");
-			result = text[2].substring(0, text[2].lastIndexOf("."));
+			result = text[2].substring(text[2].indexOf(".")+1, text[2].length());
+		} else if(this.type.equals(CategoryName.INVARIANT)){
+			if(text[2].contains("init")) result = getClassName();
+			result = text[2].substring(text[2].lastIndexOf(".")+1, text[2].indexOf("@"));
+		} else if(this.type.equals(CategoryName.CONSTRAINT)){
+			result = text[2].substring(text[2].lastIndexOf(".")+1, text[2].indexOf("@"));
 		}
-		return result;
+		this.methodName = result;
 	}
 	
 	/**
@@ -168,25 +198,31 @@ public class TestError {
 	 * @return - the string corresponding to the method name with nonconformance.
 	 */
 	public String getMethodName(){
-		String result = "";
-		if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
-			result = this.message.substring(this.message.lastIndexOf(".")+1, this.message.length());
-		} else if(this.type.equals(CategoryName.INVARIANT)){
-			result = getClassName();
-		} else if(this.type.equals(CategoryName.CONSTRAINT)){
-			String aux = this.message;
-			String[] text = aux.split(" ");
-			result = text[2].substring(text[2].lastIndexOf(".")+1, text[2].indexOf("@"));
-		}
-		return result;
+		return this.methodName;
 	}
 
+	/**
+	 * Method that returns the name of the java file that contains the current test case.
+	 * @return the name of the java file that contains the current test case.
+	 */
+	public String getTestFile() {
+		return testFile;
+	}
+
+	/**
+	 * Method that sets the name of the java file that contains the current test case.
+	 * @param testFile the name of the java file.
+	 */
+	public void setTestFile(String testFile) {
+		this.testFile = testFile;
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if((obj instanceof TestError) 
-				&& ((TestError) obj).getMessage().equalsIgnoreCase(this.getMessage()) 
-				&& ((TestError) obj).getName().equalsIgnoreCase(this.getName()) 
-				&& ((TestError) obj).getType().equalsIgnoreCase(this.getType()))
+				&& ((TestError) obj).getType().equalsIgnoreCase(this.getType()) 
+				&& ((TestError) obj).getClassName().equalsIgnoreCase(this.getClassName())
+				&& ((TestError) obj).getMethodName().equalsIgnoreCase(this.getMethodName()))
 		{ 
 			return true;
 		} else {
@@ -196,7 +232,7 @@ public class TestError {
 
 	@Override
 	public int hashCode() {
-		return getMessage().length()+getType().length();
+		return getType().length()+getMethodName().length()+getClassName().length();
 	}
 	
 }

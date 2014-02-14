@@ -15,6 +15,12 @@ import javax.swing.border.EmptyBorder;
 import utils.Constants;
 import controller.Controller;
 
+/**
+ * Main class to the GUI. Represents the first screen showed to JMLOK user.
+ * @author Alysson Milanez and Dennis Souza
+ * @version 1.0
+ *
+ */
 public class MainScreenFrame extends JFrame {
 
 	private JPanel contentPane;

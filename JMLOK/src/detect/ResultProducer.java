@@ -6,9 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -33,7 +31,7 @@ import categorize.CategoryName;
 
 /**
  * Class used to creates the file with the distinct nonconformances detected by the tool.
- * @author Alysson
+ * @author Alysson Milanez and Dennis Souza
  * @version 1.0
  */
 public class ResultProducer {
@@ -66,15 +64,14 @@ public class ResultProducer {
 	 */
 	public Set<TestError> listErrors(String path, int compiler){
 		File results = new File(path);
-		List<TestError> result;
+		Set<TestError> result;
 		if(compiler == Constants.JMLC_COMPILER){
 			result = getErrorsFromXML(results);
 		} else {
 			result = getErrorsFromFile(results);
 		}
-		Set<TestError> result2 = new HashSet<TestError>(result);
-		this.ncCount = result2.size();
-		return result2;
+		this.ncCount = result.size();
+		return result;
 	}
 	
 	/**
@@ -82,8 +79,8 @@ public class ResultProducer {
 	 * @param file = the path to result file of Randoop.
 	 * @return - the list of nonconformances present in the test result file.
 	 */
-	private List<TestError> getErrorsFromXML(File file) {
-		List<TestError> result = new ArrayList<TestError>();
+	private Set<TestError> getErrorsFromXML(File file) {
+		Set<TestError> result = new HashSet<TestError>();
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(false);
 		DocumentBuilder docBuilder;
@@ -104,10 +101,10 @@ public class ResultProducer {
 							Element problem = (Element) subNodes.item(j);
 							if (problem.getTagName().equals("error")) {
 								String name = testcase.getAttribute("name");
+								String testFile = testcase.getAttribute("classname")+".java";
 								String errorType = problem.getAttribute("type");
-								String message = problem
-										.getAttribute("message");
-								TestError te = new TestError(name, message,errorType);
+								String message = problem.getAttribute("message");
+								TestError te = new TestError(name, testFile, message, errorType);
 								if(te.isNonconformance()){
 									result.add(te);
 								}
@@ -133,8 +130,8 @@ public class ResultProducer {
 	 * @param file = the path to result file of Randoop.
 	 * @return - the list of nonconformances present in the test result file.
 	 */
-	private List<TestError> getErrorsFromFile(File file) {
-		List<TestError> result = new ArrayList<TestError>();
+	private Set<TestError> getErrorsFromFile(File file) {
+		Set<TestError> result = new HashSet<TestError>();
 		try {
 			FileReader f = new FileReader(file);
 			BufferedReader in = new BufferedReader(f);
@@ -152,7 +149,6 @@ public class ResultProducer {
 					TestError te = new TestError(text.toString(), line);
 					if(te.isNonconformance()){
 						result.add(te);
-						this.ncCount++;
 					}
 				}
 			}
