@@ -21,8 +21,8 @@ public class Nonconformance {
 	public Nonconformance() {
 	}
 	
-	public Category getType() {
-		return type;
+	public String getType() {
+		return type.getType();
 	}
 
 	public void setType(Category type) {

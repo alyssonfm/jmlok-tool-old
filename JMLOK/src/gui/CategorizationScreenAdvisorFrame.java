@@ -31,37 +31,101 @@ import javax.swing.JInternalFrame;
 public class CategorizationScreenAdvisorFrame extends JFrame {
 	
 	private List<Nonconformance> nc;
+	private String[] namesNC;
 	private JPanel contentPane;
-	private JList<String> listNonconformances;
+	private JList listNonconformances;
 	private JLabel lblMethodNameSetter;
 	private JLabel lblClassNameSetter;
 	private JLabel lblLikelyCauseSetter;
 	private JLabel lblLikelyCauseExplanationSetter;
+	private JLabel lblPackageNameSetter;
+	private JLabel lblPackageName;
 
 	/**
 	 * Create the frame.
 	 */
-	public CategorizationScreenAdvisorFrame(List<Nonconformance> nonconformance) {
+	 public CategorizationScreenAdvisorFrame(List<Nonconformance> nonconformance) {
 		nc = nonconformance;
+		namesNC = new String[nc.size()];
+		for (int i = 0; i < nc.size(); i++) {
+			namesNC[i] = nc.get(i).getType() + " " + nc.get(i).getTest(); 
+		}
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 559, 383);
+		setBounds(100, 100, 623, 383);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
 		JLabel lblNonconf = new JLabel("Nonconformances");
-		lblNonconf.setBounds(24, 27, 214, 15);
+		lblNonconf.setBounds(45, 27, 214, 15);
 		contentPane.add(lblNonconf);
 		
-		listNonconformances = new JList<String>();
-		listNonconformances.setModel(new AbstractListModel<String>() {
-			public int getSize() { return nc.size(); }
-			public String getElementAt(int index) { return nc.get(index).getType() + " " + nc.get(index).getTest(); }
+		JLabel lblNewLabel = new JLabel("Location");
+		lblNewLabel.setBounds(283, 27, 70, 15);
+		contentPane.add(lblNewLabel);
+		
+		JLabel lblLikelyCause = new JLabel("Likely Cause");
+		lblLikelyCause.setBounds(456, 27, 106, 15);
+		contentPane.add(lblLikelyCause);
+		
+		JLabel lblTestCases = new JLabel("Test Cases");
+		lblTestCases.setBounds(34, 222, 134, 15);
+		contentPane.add(lblTestCases);
+		
+		JButton btnSaveResults = new JButton("Save Results");
+		btnSaveResults.setBounds(446, 263, 143, 25);
+		contentPane.add(btnSaveResults);
+		
+		JButton btnExit = new JButton("Exit");
+		btnExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				closeWindow();
+			}
 		});
+		btnExit.setBounds(446, 317, 143, 25);
+		contentPane.add(btnExit);
+		
+		JLabel lblClassName = new JLabel("Class Name");
+		lblClassName.setBounds(220, 54, 106, 15);
+		contentPane.add(lblClassName);
+		
+		JLabel lblMethodName = new JLabel("Method Name");
+		lblMethodName.setBounds(220, 110, 106, 15);
+		contentPane.add(lblMethodName);
+		
+		lblClassNameSetter = new JLabel("");
+		lblClassNameSetter.setBounds(269, 81, 134, 15);
+		contentPane.add(lblClassNameSetter);
+		
+		lblMethodNameSetter = new JLabel("");
+		lblMethodNameSetter.setBounds(269, 137, 134, 15);
+		contentPane.add(lblMethodNameSetter);
+		
+		JLabel lblCause = new JLabel("Cause");
+		lblCause.setBounds(426, 55, 70, 15);
+		contentPane.add(lblCause);
+		
+		lblLikelyCauseSetter = new JLabel("");
+		lblLikelyCauseSetter.setBounds(446, 66, 143, 25);
+		contentPane.add(lblLikelyCauseSetter);
+		
+		lblLikelyCauseExplanationSetter = new JLabel("Explanation");
+		lblLikelyCauseExplanationSetter.setBounds(426, 103, 153, 15);
+		contentPane.add(lblLikelyCauseExplanationSetter);
+		
+		lblPackageName = new JLabel("");
+		lblPackageName.setBounds(233, 164, 133, 15);
+		contentPane.add(lblPackageName);
+		
+		lblPackageNameSetter = new JLabel("");
+		lblPackageNameSetter.setBounds(269, 191, 134, 15);
+		contentPane.add(lblPackageNameSetter);
+		
+		listNonconformances = new JList(namesNC);
 		listNonconformances.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listNonconformances.setBounds(24, 54, 134, 156);
+		listNonconformances.setBounds(24, 54, 178, 156);
 		contentPane.add(listNonconformances);
 		
 		listNonconformances.addListSelectionListener(
@@ -71,62 +135,20 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 					lblClassNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getClassName());
 					lblMethodNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getMethodName());
 					lblLikelyCauseSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getCause());
+					if(nc.get(listNonconformances.getSelectedIndex()).getPackageName() == ""){
+						lblPackageName.setText("");
+						lblPackageNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getPackageName());						
+					}else{
+						lblPackageName.setText("Package Name");
+						lblPackageNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getPackageName());						
+					}
 				}
 			}
 		);
 		
-		JLabel lblNewLabel = new JLabel("Location");
-		lblNewLabel.setBounds(239, 27, 70, 15);
-		contentPane.add(lblNewLabel);
-		
-		JLabel lblLikelyCause = new JLabel("Likely Cause");
-		lblLikelyCause.setBounds(402, 27, 106, 15);
-		contentPane.add(lblLikelyCause);
-		
-		JLabel lblTestCases = new JLabel("Test Cases");
-		lblTestCases.setBounds(34, 222, 134, 15);
-		contentPane.add(lblTestCases);
-		
-		JButton btnSaveResults = new JButton("Save Results");
-		btnSaveResults.setBounds(386, 245, 143, 25);
-		contentPane.add(btnSaveResults);
-		
-		JButton btnExit = new JButton("Exit");
-		btnExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				closeWindow();
-			}
-		});
-		btnExit.setBounds(386, 282, 143, 25);
-		contentPane.add(btnExit);
-		
-		JLabel lblClassName = new JLabel("Class Name");
-		lblClassName.setBounds(176, 66, 106, 15);
-		contentPane.add(lblClassName);
-		
-		JLabel lblMethodName = new JLabel("Method Name");
-		lblMethodName.setBounds(176, 127, 106, 15);
-		contentPane.add(lblMethodName);
-		
-		lblClassNameSetter = new JLabel("");
-		lblClassNameSetter.setBounds(219, 93, 134, 15);
-		contentPane.add(lblClassNameSetter);
-		
-		lblMethodNameSetter = new JLabel("");
-		lblMethodNameSetter.setBounds(219, 162, 134, 15);
-		contentPane.add(lblMethodNameSetter);
-		
-		JLabel lblCause = new JLabel("Cause");
-		lblCause.setBounds(368, 54, 70, 15);
-		contentPane.add(lblCause);
-		
-		lblLikelyCauseSetter = new JLabel("");
-		lblLikelyCauseSetter.setBounds(386, 66, 143, 25);
-		contentPane.add(lblLikelyCauseSetter);
-		
-		lblLikelyCauseExplanationSetter = new JLabel("Explanation");
-		lblLikelyCauseExplanationSetter.setBounds(376, 127, 153, 93);
-		contentPane.add(lblLikelyCauseExplanationSetter);
+		JScrollPane scrollPane = new JScrollPane(listNonconformances);
+		scrollPane.setBounds(24, 54, 178, 150);
+		contentPane.add(scrollPane);
 	}
 
 	protected void closeWindow() {

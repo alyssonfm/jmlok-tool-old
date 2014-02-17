@@ -24,7 +24,7 @@ import org.w3c.dom.Element;
 /**
  * Class that contains some methods to manipulate files.
  * 
- * @author Alysson Milanez
+ * @author Alysson Milanez and Dennis Souza
  * @version 1.0
  * 
  */

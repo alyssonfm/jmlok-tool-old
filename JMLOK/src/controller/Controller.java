@@ -5,15 +5,16 @@ import gui.DetectionScreenAdvisorFrame;
 
 import java.awt.EventQueue;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
-import utils.FileUtil;
 import categorize.Categorize;
 import categorize.Nonconformance;
+import utils.FileUtil;
 import detect.Detect;
 import detect.TestError;
 

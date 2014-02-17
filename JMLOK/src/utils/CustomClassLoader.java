@@ -2,6 +2,12 @@ package utils;
 
 import java.io.FileInputStream;
 
+/**
+ * Class CustomClassLoader used to load the class file of a given path.
+ * @author Alysson Milanez and Dennis Souza.
+ *
+ */
+
 public class CustomClassLoader extends ClassLoader {
 	
 	final String basePath = Constants.SOURCE_BIN+Constants.FILE_SEPARATOR;

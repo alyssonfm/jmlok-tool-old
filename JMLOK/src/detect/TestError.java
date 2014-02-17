@@ -212,7 +212,8 @@ public class TestError {
 	public void setPackage(String details) {
 		int firstIndex = details.indexOf("at ");
 		int lastIndex = details.indexOf("." + this.className + ".");
-		this.packageName = details.substring(firstIndex + 3, lastIndex);
+		if(lastIndex != -1)
+			this.packageName = details.substring(firstIndex + 3, lastIndex);
 	}
 
 	/**

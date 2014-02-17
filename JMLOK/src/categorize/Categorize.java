@@ -25,9 +25,9 @@ public class Categorize {
 	 */
 	public Set<Nonconformance> categorize(Set<TestError> errors, String sourceFolder){
 		Set<Nonconformance> nonconformances = new HashSet<Nonconformance>();
-		Nonconformance n = new Nonconformance();
 		this.examine = new Examinator(sourceFolder);
 		for(TestError te : errors){
+			Nonconformance n = new Nonconformance();
 			switch (te.getType()) {
 			case CategoryName.PRECONDITION:
 				n.setClassName(te.getClassName());
@@ -94,7 +94,10 @@ public class Categorize {
 	 * @return the string that corresponds the likely cause for this precondition error.
 	 */
 	private String categorizePrecondition(TestError e, String sourceFolder){
-		this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		if(e.getPackageName() == "")
+			this.examine.setPrincipalClassName(e.getClassName());
+		else
+			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
 		if(this.examine.checkStrongPrecondition(e.getMethodName())) 
 			return Cause.STRONG_PRE;
 		else 
