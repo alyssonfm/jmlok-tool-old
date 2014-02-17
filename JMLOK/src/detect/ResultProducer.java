@@ -104,7 +104,8 @@ public class ResultProducer {
 								String testFile = testcase.getAttribute("classname")+".java";
 								String errorType = problem.getAttribute("type");
 								String message = problem.getAttribute("message");
-								TestError te = new TestError(name, testFile, message, errorType);
+								String detailedErrorMessage = problem.getFirstChild().toString();
+								TestError te = new TestError(name, testFile, message, errorType, detailedErrorMessage);
 								if(te.isNonconformance()){
 									result.add(te);
 								}

@@ -1,17 +1,19 @@
 package controller;
 
-import gui.CategorizationScreenAdvisorFram;
+import gui.CategorizationScreenAdvisorFrame;
 import gui.DetectionScreenAdvisorFrame;
 
 import java.awt.EventQueue;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
+import utils.FileUtil;
 import categorize.Categorize;
 import categorize.Nonconformance;
-import utils.FileUtil;
 import detect.Detect;
 import detect.TestError;
 
@@ -54,8 +56,17 @@ public class Controller {
 	}
 
 	public static void showCategorizationScreen() {
-		Set<Nonconformance> nonconformance = fulfillCategorizePhase(errors, source);
-		CategorizationScreenAdvisorFram.main();
+		final List<Nonconformance> nonconformance = fulfillCategorizePhase(errors, source);
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					CategorizationScreenAdvisorFrame frame = new CategorizationScreenAdvisorFrame(nonconformance);
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	private static void setSystemVariableClassPath(String libFolder) {
@@ -69,9 +80,12 @@ public class Controller {
 		return errors;
 	}
 	
-	private static Set<Nonconformance> fulfillCategorizePhase(Set<TestError> errors, String source) {
+	private static List<Nonconformance> fulfillCategorizePhase(Set<TestError> errors, String source) {
 		Categorize c = new Categorize();
-		return c.categorize(errors, source);
+		List<Nonconformance> x = new ArrayList<Nonconformance>();
+		for(Nonconformance n : c.categorize(errors, source))
+			x.add(n);
+		return x;
 	}
 
 }

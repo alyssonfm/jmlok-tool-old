@@ -4,7 +4,7 @@ import utils.Constants;
 
 /**
  * Class to generate test cases using the randoop tool.
- * @author Alysson Milanez
+ * @author Alysson Milanez and Dennis Souza
  * @version 1.0
  */
 public class TestGenerator {

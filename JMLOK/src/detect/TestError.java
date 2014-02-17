@@ -12,6 +12,7 @@ public class TestError {
 	private String message = "";
 	private String className = "";
 	private String methodName = "";
+	private String packageName = "";
 	private String name = "";
 	private String testFile = "";
 	private boolean jmlRac = true;
@@ -20,18 +21,21 @@ public class TestError {
 	/**
 	 * The constructor of this class, receives a name, a message and a type error to the test.
 	 * @param name = the name of current test.
+	 * @param testFile = the name of the .java used for finding this test error.
 	 * @param message = the message of current test error.
-	 * @param errorType = the type of error occurred.
+	 * @param type = the type of error occurred.
+	 * @param details = more detailed info about the test error.
 	 */
-	public TestError(String name, String testFile, String message, String type) {
+	public TestError(String name, String testFile, String message, String type, String details) {
 		this.setTypeJmlc(type);
 		this.setMessage(message);
 		this.setClassName();
 		this.setTestFile(testFile);
 		this.setMethodName();
 		this.setName(name);
+		this.setPackage(details);
 	}
-	
+
 	/**
 	 * The alternative constructor of this class. Takes only two arguments as parameter.
 	 * @param message - the message of the error.
@@ -200,7 +204,25 @@ public class TestError {
 	public String getMethodName(){
 		return this.methodName;
 	}
+	
+	/**
+	 * Method that defines the complete package name of the Class tested for the current test error.
+	 * @param details It's the string containing more detailed info about the test case.
+	 */
+	public void setPackage(String details) {
+		int firstIndex = details.indexOf("at ");
+		int lastIndex = details.indexOf("." + this.className + ".");
+		this.packageName = details.substring(firstIndex + 3, lastIndex);
+	}
 
+	/**
+	 * Method that returns the full package name for the current test error.
+	 * @return Package name for the current test error.
+	 */
+	public String getPackageName(){
+		return this.packageName;
+	}
+	
 	/**
 	 * Method that returns the name of the java file that contains the current test case.
 	 * @return the name of the java file that contains the current test case.
@@ -222,11 +244,13 @@ public class TestError {
 		if((obj instanceof TestError) 
 				&& ((TestError) obj).getType().equalsIgnoreCase(this.getType()) 
 				&& ((TestError) obj).getClassName().equalsIgnoreCase(this.getClassName())
-				&& ((TestError) obj).getMethodName().equalsIgnoreCase(this.getMethodName()))
+				&& ((TestError) obj).getMethodName().equalsIgnoreCase(this.getMethodName())
+				&& ((TestError) obj).getPackageName().equalsIgnoreCase(this.getPackageName()))
 		{ 
 			return true;
 		} else {
 			return false;
+	
 		}
 	}
 

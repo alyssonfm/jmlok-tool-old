@@ -30,6 +30,9 @@ public class Categorize {
 		for(TestError te : errors){
 			switch (te.getType()) {
 			case CategoryName.PRECONDITION:
+				n.setClassName(te.getClassName());
+				n.setMethodName(te.getMethodName());
+				n.setPackageName(te.getPackageName());
 				n.setType(new Precondition());
 				n.setTest(te.getName());
 				n.setCause(categorizePrecondition(te, sourceFolder));
@@ -38,35 +41,43 @@ public class Categorize {
 				break;
 				
 			case CategoryName.POSTCONDITION:
+				/*
 				n.setType(new Postcondition());
 				n.setTest(te.getName());
 				n.setCause(categorizePostcondition(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
+				*/
 				break;
 
 			case CategoryName.INVARIANT:
+				/*
 				n.setType(new Invariant());
 				n.setTest(te.getName());
 				n.setCause(categorizeInvariant(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
+				*/
 				break;
 				
 			case CategoryName.CONSTRAINT:
+				/*
 				n.setType(new Constraint());
 				n.setTest(te.getName());
 				n.setCause(categorizeConstraint(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
+				*/
 				break;
 				
 			case CategoryName.EVALUATION:
+				/*
 				n.setCause(categorizeEvaluation(te, sourceFolder));
 				n.setTest(te.getName());
 				n.setType(new Evaluation());
 				n.setTestFile(te.getTestFile());
 				nonconformances.add(n);
+				*/
 				break;
 				
 			default:
@@ -83,7 +94,7 @@ public class Categorize {
 	 * @return the string that corresponds the likely cause for this precondition error.
 	 */
 	private String categorizePrecondition(TestError e, String sourceFolder){
-		this.examine.setPrincipalClassName(e.getClassName());
+		this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
 		if(this.examine.checkStrongPrecondition(e.getMethodName())) 
 			return Cause.STRONG_PRE;
 		else 
@@ -162,8 +173,4 @@ public class Categorize {
 		return result;
 	}
 	
-	public static void main(String[] args) {
-		//System.out.println(categorizePrecondition(new TestError("t", "by method sample.Carro.g", "jmlrac Precondition error"), "C:\\users\\Alysson\\Desktop"));		
-		// eh bom sempre comentarmos os codigos de teste antes de fazer push e commit.
-	}
 }
