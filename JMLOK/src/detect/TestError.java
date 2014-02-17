@@ -1,5 +1,7 @@
 package detect;
 
+import org.apache.tools.ant.types.CommandlineJava.SysProperties;
+
 import categorize.CategoryName;
 
 /**
@@ -17,6 +19,7 @@ public class TestError {
 	private String testFile = "";
 	private boolean jmlRac = true;
 	private boolean meaningless = false;
+	private int numberRevealsNC = 0;
 
 	/**
 	 * The constructor of this class, receives a name, a message and a type error to the test.
@@ -34,6 +37,7 @@ public class TestError {
 		this.setMethodName();
 		this.setName(name);
 		this.setPackage(details);
+		this.setNumberRevealsNC(details);
 	}
 
 	/**
@@ -224,6 +228,16 @@ public class TestError {
 		return this.packageName;
 	}
 	
+	public int getNumberRevealsNC() {
+		return numberRevealsNC;
+	}
+
+	public void setNumberRevealsNC(String details) {
+		int firstIndex = details.lastIndexOf(".java:");
+		Integer aux = new Integer(details.substring(firstIndex+6, details.lastIndexOf(")"))); 
+		this.numberRevealsNC = aux.intValue();
+	}	
+	
 	/**
 	 * Method that returns the name of the java file that contains the current test case.
 	 * @return the name of the java file that contains the current test case.
@@ -259,5 +273,5 @@ public class TestError {
 	public int hashCode() {
 		return getType().length()+getMethodName().length()+getClassName().length();
 	}
-	
+
 }

@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.text.BadLocationException;
 import javax.swing.AbstractListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -21,12 +22,21 @@ import categorize.Nonconformance;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JInternalFrame;
+import javax.swing.JTextArea;
+
+import utils.Constants;
+import utils.FileUtil;
 
 public class CategorizationScreenAdvisorFrame extends JFrame {
 	
@@ -40,6 +50,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 	private JLabel lblLikelyCauseExplanationSetter;
 	private JLabel lblPackageNameSetter;
 	private JLabel lblPackageName;
+	private JTextArea textAreaTestCases;
 
 	/**
 	 * Create the frame.
@@ -52,7 +63,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		}
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 623, 383);
+		setBounds(100, 100, 639, 464);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -86,6 +97,9 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		});
 		btnExit.setBounds(446, 317, 143, 25);
 		contentPane.add(btnExit);
+		
+		textAreaTestCases = new JTextArea();
+		textAreaTestCases.setBounds(24, 242, 401, 100);
 		
 		JLabel lblClassName = new JLabel("Class Name");
 		lblClassName.setBounds(220, 54, 106, 15);
@@ -142,6 +156,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 						lblPackageName.setText("Package Name");
 						lblPackageNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getPackageName());						
 					}
+					textAreaTestCases.setText(testCaseContent(nc.get(listNonconformances.getSelectedIndex()).getTestFile(), nc.get(listNonconformances.getSelectedIndex()).getLineNumber()));
 				}
 			}
 		);
@@ -149,6 +164,37 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(listNonconformances);
 		scrollPane.setBounds(24, 54, 178, 150);
 		contentPane.add(scrollPane);
+		
+		
+		contentPane.add(textAreaTestCases);
+		
+		JScrollPane scrollPane_2 = new JScrollPane(textAreaTestCases);
+		scrollPane_2.setBounds(27, 250, 398, 92);
+		contentPane.add(scrollPane_2);
+	}
+
+	protected String testCaseContent(String testFile, int wishedLine) {
+		BufferedReader f;
+		String toReturn = "";
+		try {
+			f = new BufferedReader(new FileReader(Constants.TEST_DIR + Constants.FILE_SEPARATOR + testFile));
+			String line;
+			int counterLines = 0;
+			try {
+				while ((line = f.readLine()) != null) {
+					counterLines++;
+					toReturn += line+"\n";
+					if(counterLines == wishedLine)
+						break;
+				}
+				f.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return toReturn;
 	}
 
 	protected void closeWindow() {

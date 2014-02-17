@@ -17,6 +17,7 @@ public class Nonconformance {
 	private String methodName = "";
 
 	private String packageName = "";
+	private int lineNumber = 0;
 	
 	public Nonconformance() {
 	}
@@ -112,6 +113,14 @@ public class Nonconformance {
 				+ ((testFile == null) ? 0 : testFile.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
+	}
+
+	public int getLineNumber() {
+		return lineNumber;
+	}
+
+	public void setLineNumber(int lineNumber) {
+		this.lineNumber = lineNumber;
 	}
 
 }

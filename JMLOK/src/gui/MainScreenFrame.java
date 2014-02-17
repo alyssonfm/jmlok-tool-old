@@ -55,7 +55,7 @@ public class MainScreenFrame extends JFrame {
 	public MainScreenFrame() {
 		setTitle("JMLOK");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 483, 149);
+		setBounds(100, 100, 490, 173);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
