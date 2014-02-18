@@ -42,13 +42,15 @@ public class Categorize {
 				break;
 				
 			case CategoryName.POSTCONDITION:
-				/*
+				n.setClassName(te.getClassName());
+				n.setMethodName(te.getMethodName());
+				n.setPackageName(te.getPackageName());
 				n.setType(new Postcondition());
 				n.setTest(te.getName());
 				n.setCause(categorizePostcondition(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
+				n.setLineNumber(te.getNumberRevealsNC());
 				nonconformances.add(n);
-				*/
 				break;
 
 			case CategoryName.INVARIANT:
@@ -88,7 +90,7 @@ public class Categorize {
 		return nonconformances;
 	}
 	/**
-	 * Method that adds a likely cause for a nonconformance of precondition. Receives a test error - the nonconformance - and 
+	 *Method that returns a likely cause for a nonconformance of precondition. Receives a test error - the nonconformance - and 
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
@@ -106,30 +108,31 @@ public class Categorize {
 	}
 	
 	/**
-	 * Method that adds a likely cause for a nonconformance of postcondition. Receives a test error - the nonconformance - and 
+	 *Method that returns a likely cause for a nonconformance of postcondition. Receives a test error - the nonconformance - and 
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
 	 * @return the string that corresponds the likely cause for this postcondition error.
 	 */
-	private static String categorizePostcondition(TestError e, String sourceFolder){
-		String result = "";
-		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 
-			result = Cause.WEAK_PRE;
-		else 
-			result = Cause.STRONG_POST;
-		return result;
+	private String categorizePostcondition(TestError e, String sourceFolder){
+		if(e.getPackageName() == "")
+			this.examine.setPrincipalClassName(e.getClassName());
+		else
+			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		if(this.examine.checkWeakPrecondition(e.getMethodName()))
+			return Cause.WEAK_PRE;
+		else
+			return Cause.STRONG_POST;
 	}
 	
 	/**
-	 * Method that adds a likely cause for a nonconformance of invariant. Receives a test error - the nonconformance - and 
+	 *Method that returns a likely cause for a nonconformance of invariant. Receives a test error - the nonconformance - and 
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
 	 * @return the string that corresponds the likely cause for this invariant error.
 	 */
-	private static String categorizeInvariant(TestError e, String sourceFolder){
+	private String categorizeInvariant(TestError e, String sourceFolder){
 		String result = "";
 		PatternsTool p = new PatternsTool(sourceFolder);
 		if(p.checkNull(e.getClassName())) 
@@ -142,13 +145,13 @@ public class Categorize {
 	}
 	
 	/**
-	 * Method that adds a likely cause for a nonconformance of history constraint. Receives a test error - the nonconformance - and 
+	 *Method that returns a likely cause for a nonconformance of history constraint. Receives a test error - the nonconformance - and 
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
 	 * @return the string that corresponds the likely cause for this history constraint error.
 	 */
-	private static String categorizeConstraint(TestError e, String sourceFolder){
+	private String categorizeConstraint(TestError e, String sourceFolder){
 		String result = "";
 		PatternsTool p = new PatternsTool(sourceFolder);
 		if(p.checkNull(e.getClassName())) 
@@ -161,13 +164,13 @@ public class Categorize {
 	}
 	
 	/**
-	 * Method that adds a likely cause for a nonconformance of evaluation. Receives a test error - the nonconformance - and 
+	 *Method that returns a likely cause for a nonconformance of evaluation. Receives a test error - the nonconformance - and 
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
 	 * @return the string that corresponds the likely cause for this evaluation error.
 	 */
-	private static String categorizeEvaluation(TestError e, String sourceFolder){
+	private String categorizeEvaluation(TestError e, String sourceFolder){
 		String result = "";
 		PatternsTool p = new PatternsTool(sourceFolder);
 		if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 

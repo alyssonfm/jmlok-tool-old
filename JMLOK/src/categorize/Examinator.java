@@ -45,7 +45,7 @@ public class Examinator {
 	}
 	/**
 	 * Get the complete name of the principal class examined. 
-	 * @return Complete name of the principal classe examined.
+	 * @return Complete name of the principal class examined.
 	 */
 	public String getPrincipalClassName() {
 		return principalClassName;
@@ -104,7 +104,7 @@ public class Examinator {
 		return className.substring(className.lastIndexOf(".") + 1);
 	}
 	/**
-	 * Checks if the Precondition clauses from an method are too strong.
+	 * Checks if the Precondition clauses from a method are too strong.
 	 * @param methodName Name of the method studied.
 	 * @return true if the Precondition clauses are too strong, or false.
 	 */
@@ -277,6 +277,38 @@ public class Examinator {
 		}else if(expression.lhs instanceof JCIdent)
 			if(((JCIdent) expression.lhs).name.toString().equals(toTest))
 				return true;
+		return false;
+	}
+	
+	/**
+	 * Checks if the Precondition clauses from a method are too weak.
+	 * @param methodName Name of the method studied.
+	 * @return true if the Precondition clauses are too weak, false otherwise.
+	 */
+	public boolean checkWeakPrecondition(String methodName) {
+		if(isRequiresTrue(methodName)) return true;
+		if(isAttModifiedOnMethod(methodName)) return true;
+		return false;
+	}
+	
+	/**
+	 * Method that checks if there are some parameter of the method modified in
+	 * the method body.
+	 * @param methodName the name of the method that contains a nonconformance.
+	 * @return true if there are some parameter modified, false otherwise.
+	 */
+	private boolean isAttModifiedOnMethod(String methodName) {
+		return false;
+	}
+	
+	/**
+	 * Checks if in one of the JML conditions there are an requires true, that
+	 * being when there are an requires true; or requires (* ... *); (informal)
+	 * or an Absence of requires, which by default are require true.
+	 * @param methodName Name of the method searched.
+	 * @return true if requires true were found, false otherwise.
+	 */
+	private boolean isRequiresTrue(String methodName) {
 		return false;
 	}
 }
