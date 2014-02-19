@@ -1,42 +1,26 @@
 package gui;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.text.BadLocationException;
-import javax.swing.AbstractListModel;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JButton;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 
 import categorize.Nonconformance;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.JInternalFrame;
-import javax.swing.JTextArea;
-
-import utils.Constants;
-import utils.FileUtil;
 
 public class CategorizationScreenAdvisorFrame extends JFrame {
 	
@@ -47,46 +31,42 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 	private JLabel lblMethodNameSetter;
 	private JLabel lblClassNameSetter;
 	private JLabel lblLikelyCauseSetter;
-	private JLabel lblLikelyCauseExplanationSetter;
+	private JLabel lblLikelyCauseExplanation;
 	private JLabel lblPackageNameSetter;
 	private JLabel lblPackageName;
 	private JTextArea textAreaTestCases;
+	private Highlighter highLit;
+	private Highlighter.HighlightPainter painter;
+	private JLabel lblNonconfomancesNumberSetter;
+	
 
 	/**
 	 * Create the frame.
 	 */
 	 public CategorizationScreenAdvisorFrame(List<Nonconformance> nonconformance) {
-		nc = nonconformance;
-		namesNC = new String[nc.size()];
-		for (int i = 0; i < nc.size(); i++) {
-			namesNC[i] = nc.get(i).getType() + " " + nc.get(i).getTest(); 
-		}
+		initializingStringForSelectionList(nonconformance);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 639, 464);
+		setBounds(100, 100, 640, 480);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
 		JLabel lblNonconf = new JLabel("Nonconformances");
-		lblNonconf.setBounds(45, 27, 214, 15);
+		lblNonconf.setBounds(53, 54, 214, 15);
 		contentPane.add(lblNonconf);
 		
 		JLabel lblNewLabel = new JLabel("Location");
-		lblNewLabel.setBounds(283, 27, 70, 15);
+		lblNewLabel.setBounds(283, 54, 70, 15);
 		contentPane.add(lblNewLabel);
 		
-		JLabel lblLikelyCause = new JLabel("Likely Cause");
-		lblLikelyCause.setBounds(456, 27, 106, 15);
-		contentPane.add(lblLikelyCause);
-		
 		JLabel lblTestCases = new JLabel("Test Cases");
-		lblTestCases.setBounds(34, 222, 134, 15);
+		lblTestCases.setBounds(34, 333, 134, 15);
 		contentPane.add(lblTestCases);
 		
 		JButton btnSaveResults = new JButton("Save Results");
-		btnSaveResults.setBounds(446, 263, 143, 25);
+		btnSaveResults.setBounds(446, 353, 143, 25);
 		contentPane.add(btnSaveResults);
 		
 		JButton btnExit = new JButton("Exit");
@@ -95,106 +75,116 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 				closeWindow();
 			}
 		});
-		btnExit.setBounds(446, 317, 143, 25);
+		btnExit.setBounds(446, 407, 143, 25);
 		contentPane.add(btnExit);
 		
-		textAreaTestCases = new JTextArea();
-		textAreaTestCases.setBounds(24, 242, 401, 100);
-		
 		JLabel lblClassName = new JLabel("Class Name");
-		lblClassName.setBounds(220, 54, 106, 15);
+		lblClassName.setBounds(213, 135, 106, 15);
 		contentPane.add(lblClassName);
 		
 		JLabel lblMethodName = new JLabel("Method Name");
-		lblMethodName.setBounds(220, 110, 106, 15);
+		lblMethodName.setBounds(213, 191, 106, 15);
 		contentPane.add(lblMethodName);
 		
 		lblClassNameSetter = new JLabel("");
-		lblClassNameSetter.setBounds(269, 81, 134, 15);
+		lblClassNameSetter.setBounds(262, 162, 134, 15);
 		contentPane.add(lblClassNameSetter);
 		
 		lblMethodNameSetter = new JLabel("");
-		lblMethodNameSetter.setBounds(269, 137, 134, 15);
+		lblMethodNameSetter.setBounds(262, 218, 134, 15);
 		contentPane.add(lblMethodNameSetter);
 		
 		JLabel lblCause = new JLabel("Cause");
-		lblCause.setBounds(426, 55, 70, 15);
+		lblCause.setBounds(213, 245, 70, 15);
 		contentPane.add(lblCause);
 		
 		lblLikelyCauseSetter = new JLabel("");
-		lblLikelyCauseSetter.setBounds(446, 66, 143, 25);
+		lblLikelyCauseSetter.setBounds(262, 272, 143, 15);
 		contentPane.add(lblLikelyCauseSetter);
 		
-		lblLikelyCauseExplanationSetter = new JLabel("Explanation");
-		lblLikelyCauseExplanationSetter.setBounds(426, 103, 153, 15);
-		contentPane.add(lblLikelyCauseExplanationSetter);
+		lblLikelyCauseExplanation = new JLabel("");
+		lblLikelyCauseExplanation.setBounds(437, 218, 153, 15);
+		contentPane.add(lblLikelyCauseExplanation);
 		
-		lblPackageName = new JLabel("");
-		lblPackageName.setBounds(233, 164, 133, 15);
+		lblPackageName = new JLabel("Package");
+		lblPackageName.setBounds(220, 81, 133, 15);
 		contentPane.add(lblPackageName);
 		
 		lblPackageNameSetter = new JLabel("");
-		lblPackageNameSetter.setBounds(269, 191, 134, 15);
+		lblPackageNameSetter.setBounds(269, 108, 134, 15);
 		contentPane.add(lblPackageNameSetter);
 		
 		listNonconformances = new JList(namesNC);
 		listNonconformances.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listNonconformances.setBounds(24, 54, 178, 156);
+		listNonconformances.setBounds(24, 81, 178, 240);
 		contentPane.add(listNonconformances);
-		
+		highLit = new DefaultHighlighter();
+		painter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
 		listNonconformances.addListSelectionListener(
 			new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					lblClassNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getClassName());
-					lblMethodNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getMethodName());
-					lblLikelyCauseSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getCause());
-					if(nc.get(listNonconformances.getSelectedIndex()).getPackageName() == ""){
-						lblPackageName.setText("");
-						lblPackageNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getPackageName());						
-					}else{
-						lblPackageName.setText("Package Name");
-						lblPackageNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getPackageName());						
-					}
-					textAreaTestCases.setText(testCaseContent(nc.get(listNonconformances.getSelectedIndex()).getTestFile(), nc.get(listNonconformances.getSelectedIndex()).getLineNumber()));
+					setChangesFromSelectionOnTheList();
 				}
 			}
 		);
 		
-		JScrollPane scrollPane = new JScrollPane(listNonconformances);
-		scrollPane.setBounds(24, 54, 178, 150);
-		contentPane.add(scrollPane);
 		
+		JScrollPane scrollPane2 = new JScrollPane();
+		scrollPane2.setAlignmentX(LEFT_ALIGNMENT);
+		scrollPane2.setAlignmentY(TOP_ALIGNMENT);
+		scrollPane2.setBounds(24, 353, 401, 86);
+		contentPane.add(scrollPane2);
 		
-		contentPane.add(textAreaTestCases);
+		textAreaTestCases = new JTextArea();
+		scrollPane2.setViewportView(textAreaTestCases);
 		
-		JScrollPane scrollPane_2 = new JScrollPane(textAreaTestCases);
-		scrollPane_2.setBounds(27, 250, 398, 92);
-		contentPane.add(scrollPane_2);
+		JLabel lblWereDetected = new JLabel("Were detected: ");
+		lblWereDetected.setBounds(24, 27, 139, 15);
+		contentPane.add(lblWereDetected);
+		
+		lblNonconfomancesNumberSetter = new JLabel(nc.size() + "");
+		lblNonconfomancesNumberSetter.setBounds(144, 27, 70, 15);
+		contentPane.add(lblNonconfomancesNumberSetter);
+		
+		JLabel lblNonconfomities = new JLabel("nonconformances.");
+		lblNonconfomities.setBounds(175, 27, 184, 15);
+		contentPane.add(lblNonconfomities);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(423, 27, 192, 301);
+		contentPane.add(panel);
+		
 	}
 
-	protected String testCaseContent(String testFile, int wishedLine) {
-		BufferedReader f;
-		String toReturn = "";
-		try {
-			f = new BufferedReader(new FileReader(Constants.TEST_DIR + Constants.FILE_SEPARATOR + testFile));
-			String line;
-			int counterLines = 0;
-			try {
-				while ((line = f.readLine()) != null) {
-					counterLines++;
-					toReturn += line+"\n";
-					if(counterLines == wishedLine)
-						break;
-				}
-				f.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+	private void setChangesFromSelectionOnTheList() {
+			lblClassNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getClassName());
+			lblMethodNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getMethodName());
+			lblLikelyCauseSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getCause());
+			if(nc.get(listNonconformances.getSelectedIndex()).getPackageName() == ""){
+				lblPackageNameSetter.setText("<default>");						
+			}else{
+				lblPackageNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getPackageName());						
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			textAreaTestCases.setText(nc.get(listNonconformances.getSelectedIndex()).getLinesFromTestFile());
+			textAreaTestCases.setEditable(false);
+			textAreaTestCases.setHighlighter(highLit);
+			int beginIndex = textAreaTestCases.getText().indexOf("\n", textAreaTestCases.getText().indexOf("\n")) + 1;
+			beginIndex = textAreaTestCases.getText().indexOf("\n", beginIndex) + 1;
+			int endIndex = textAreaTestCases.getText().indexOf(";", beginIndex) + 1;
+			try {
+				highLit.addHighlight(beginIndex, endIndex, painter);
+			} catch (BadLocationException e1) {
+				e1.printStackTrace();
+			}
+	}
+	 
+	private void initializingStringForSelectionList(List<Nonconformance> nonconformance) {
+		nc = nonconformance;
+		namesNC = new String[nc.size()];
+		for (int i = 0; i < nc.size(); i++) {
+			namesNC[i] = nc.get(i).getType() + " " + nc.get(i).getTest(); 
 		}
-		return toReturn;
 	}
 
 	protected void closeWindow() {

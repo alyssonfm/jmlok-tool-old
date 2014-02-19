@@ -151,9 +151,11 @@ public class Examinator {
 						for (com.sun.tools.javac.util.List<JCVariableDecl> acessing = anMethod.params; 
 								!acessing.isEmpty(); acessing = acessing.tail)
 							if(verifyFieldsInClause(traversing, acessing.head.name.toString(), true))
+								//this.violatedClause = traversing.toString();
 								return true;
 						for (String var : this.variables) 
 							if(verifyFieldsInClause(traversing, var, false))
+								//this.violatedClause = traversing.toString();
 								return true;
 					}
 				}

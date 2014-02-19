@@ -1,6 +1,8 @@
 package categorize;
 
-import detect.TestError;
+import java.io.IOException;
+
+import utils.FileUtil;
 
 /**
  * Class that represents a nonconformance.
@@ -15,9 +17,8 @@ public class Nonconformance {
 	private String testFile = "";
 	private String className = "";
 	private String methodName = "";
-
 	private String packageName = "";
-	private int lineNumber = 0;
+	private String linesFromTestFile = "";
 	
 	public Nonconformance() {
 	}
@@ -78,6 +79,18 @@ public class Nonconformance {
 		this.packageName = packageName;
 	}
 
+	public String getLinesFromTestFile() {
+		return linesFromTestFile;
+	}
+
+	public void setLinesFromTestFile(String testFile, int specifiedLine) {
+		try {
+			this.linesFromTestFile = FileUtil.testCaseContent(testFile, specifiedLine);
+		} catch (IOException e) {
+			this.linesFromTestFile = "Error when reading the test files.";
+		}
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if((obj instanceof Nonconformance) 
@@ -95,7 +108,6 @@ public class Nonconformance {
 	
 		}
 	}
-
 	
 	@Override
 	public int hashCode() {
@@ -113,14 +125,6 @@ public class Nonconformance {
 				+ ((testFile == null) ? 0 : testFile.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
-	}
-
-	public int getLineNumber() {
-		return lineNumber;
-	}
-
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
 	}
 
 }

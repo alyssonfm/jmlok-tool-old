@@ -37,7 +37,7 @@ public class Categorize {
 				n.setTest(te.getName());
 				n.setCause(categorizePrecondition(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
-				n.setLineNumber(te.getNumberRevealsNC());
+				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
 				break;
 				
@@ -49,7 +49,7 @@ public class Categorize {
 				n.setTest(te.getName());
 				n.setCause(categorizePostcondition(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
-				n.setLineNumber(te.getNumberRevealsNC());
+				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
 				break;
 

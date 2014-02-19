@@ -1,7 +1,5 @@
 package detect;
 
-import org.apache.tools.ant.types.CommandlineJava.SysProperties;
-
 import categorize.CategoryName;
 
 /**
@@ -228,16 +226,6 @@ public class TestError {
 		return this.packageName;
 	}
 	
-	public int getNumberRevealsNC() {
-		return numberRevealsNC;
-	}
-
-	public void setNumberRevealsNC(String details) {
-		int firstIndex = details.lastIndexOf(".java:");
-		Integer aux = new Integer(details.substring(firstIndex+6, details.lastIndexOf(")"))); 
-		this.numberRevealsNC = aux.intValue();
-	}	
-	
 	/**
 	 * Method that returns the name of the java file that contains the current test case.
 	 * @return the name of the java file that contains the current test case.
@@ -253,7 +241,25 @@ public class TestError {
 	public void setTestFile(String testFile) {
 		this.testFile = testFile;
 	}
+
+	/**
+	 * Method that returns the number of line where current error was found.
+	 * @return Line where current test Error was found in the Test File.
+	 */
+	public int getNumberRevealsNC() {
+		return this.numberRevealsNC;
+	}
 	
+	/**
+	 * Method that sets the line where current error was found.
+	 * @param details The details from error, where line was specified.
+	 */
+	public void setNumberRevealsNC(String details) {
+		int firstIndex = details.lastIndexOf(".java:");
+		Integer aux = new Integer(details.substring(firstIndex+6, details.lastIndexOf(")"))); 
+		this.numberRevealsNC = aux.intValue();
+	}	
+
 	@Override
 	public boolean equals(Object obj) {
 		if((obj instanceof TestError) 

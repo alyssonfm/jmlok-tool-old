@@ -24,7 +24,7 @@ import org.w3c.dom.Element;
 /**
  * Class that contains some methods to manipulate files.
  * 
- * @author Alysson Milanez and Dennis Souza
+ * @author Alysson Milanez
  * @version 1.0
  * 
  */
@@ -156,6 +156,30 @@ public class FileUtil {
 		}
 		return result;
 	}
+	
+	/**
+	 * Returns some lines for more detailed info about the test cases whom discovered specified error.
+	 * @param testFile The test file where the error was called.
+	 * @param wishedLine The line of the file where the error was founded. 
+	 * @return String containing 6 lines from the file for info.
+	 * @throws IOException When failing to read the file.
+	 */
+	public static String testCaseContent(String testFile, int wishedLine) throws IOException {
+		BufferedReader f = new BufferedReader(new FileReader(Constants.TEST_DIR + Constants.FILE_SEPARATOR + testFile));
+		String line, toReturn = "";
+		int counterLines = 0, determinedLine = -1;
+		while ((line = f.readLine()) != null) {
+			counterLines++;
+			if(counterLines == wishedLine - 2)
+				determinedLine = counterLines + 4;
+			if(counterLines >= wishedLine - 2 && counterLines < determinedLine)
+				toReturn += line + "\n";
+			if(counterLines == determinedLine)
+				return toReturn + line;
+		}
+		return toReturn;
+	}
+
 
 	/**
 	 * Method that creates a xml file used to store the nonconformances
