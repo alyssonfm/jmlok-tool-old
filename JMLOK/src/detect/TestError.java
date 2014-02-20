@@ -87,7 +87,8 @@ public class TestError {
 				this.type = CategoryName.PRECONDITION;
 		} else if (type.contains("Constraint")) {
 			this.type = CategoryName.CONSTRAINT;
-		} else this.type = CategoryName.EVALUATION;
+		} else if (type.contains("Evaluation")) 
+			this.type = CategoryName.EVALUATION;
 	}
 	
 	/**
@@ -167,8 +168,10 @@ public class TestError {
 		String result = "";
 		String aux = this.message;
 		String[] text = aux.split(" ");
-		if(this.type.equals(CategoryName.EVALUATION)) result = text[3].substring(text[3].indexOf(";")+1, text[3].indexOf(".java"));
-		result = text[2].substring(0, text[2].indexOf("."));
+		if(!this.type.equals(CategoryName.EVALUATION)){
+			result = text[2].substring(0, text[2].indexOf("."));
+		}else 
+			result = text[3].substring(text[3].indexOf(";")+1, text[3].indexOf(".java"));
 		this.className = result;
 	}
 	
