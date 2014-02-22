@@ -54,33 +54,39 @@ public class Categorize {
 				break;
 
 			case CategoryName.INVARIANT:
-				/*
+				n.setClassName(te.getClassName());
+				n.setMethodName(te.getMethodName());
+				n.setPackageName(te.getPackageName());
 				n.setType(new Invariant());
 				n.setTest(te.getName());
 				n.setCause(categorizeInvariant(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
+				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
-				*/
 				break;
 				
 			case CategoryName.CONSTRAINT:
-				/*
+				n.setClassName(te.getClassName());
+				n.setMethodName(te.getMethodName());
+				n.setPackageName(te.getPackageName());
 				n.setType(new Constraint());
 				n.setTest(te.getName());
 				n.setCause(categorizeConstraint(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
+				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
-				*/
 				break;
 				
 			case CategoryName.EVALUATION:
-				/*
-				n.setCause(categorizeEvaluation(te, sourceFolder));
-				n.setTest(te.getName());
+				n.setClassName(te.getClassName());
+				n.setMethodName(te.getMethodName());
+				n.setPackageName(te.getPackageName());
 				n.setType(new Evaluation());
+				n.setTest(te.getName());
+				n.setCause(categorizeEvaluation(te, sourceFolder));
 				n.setTestFile(te.getTestFile());
+				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
-				*/
 				break;
 				
 			default:
@@ -119,10 +125,10 @@ public class Categorize {
 			this.examine.setPrincipalClassName(e.getClassName());
 		else
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
-		if(this.examine.checkStrongPostcondition(e.getMethodName()))
-			return Cause.STRONG_POST;
-		else
+		if(this.examine.checkWeakPrecondition(e.getMethodName()))
 			return Cause.WEAK_PRE;
+		else
+			return Cause.STRONG_POST;
 	}
 	
 	/**
@@ -133,15 +139,16 @@ public class Categorize {
 	 * @return the string that corresponds the likely cause for this invariant error.
 	 */
 	private String categorizeInvariant(TestError e, String sourceFolder){
-		String result = "";
-		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.checkNull(e.getClassName())) 
-			result = Cause.NULL_RELATED;
-		else if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 
-			result = Cause.WEAK_PRE;
+		if(e.getPackageName() == "")
+			this.examine.setPrincipalClassName(e.getClassName());
 		else 
-			result = Cause.STRONG_INV;
-		return result;
+			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		if(this.examine.checkNull(e.getClassName())) 
+			return Cause.NULL_RELATED;
+		else if(this.examine.checkWeakPrecondition(e.getMethodName())) 
+			return Cause.WEAK_PRE;
+		else 
+			return Cause.STRONG_INV;
 	}
 	
 	/**
@@ -152,15 +159,16 @@ public class Categorize {
 	 * @return the string that corresponds the likely cause for this history constraint error.
 	 */
 	private String categorizeConstraint(TestError e, String sourceFolder){
-		String result = "";
-		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.checkNull(e.getClassName())) 
-			result = Cause.NULL_RELATED;
-		else if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 
-			result = Cause.WEAK_PRE;
+		if(e.getPackageName() == "")
+			this.examine.setPrincipalClassName(e.getClassName());
 		else 
-			result = Cause.STRONG_CONST;
-		return result;
+			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		if(this.examine.checkNull(e.getClassName())) 
+			return Cause.NULL_RELATED;
+		else if(this.examine.checkWeakPrecondition(e.getMethodName())) 
+			return Cause.WEAK_PRE;
+		else 
+			return Cause.STRONG_CONST;
 	}
 	
 	/**
@@ -171,13 +179,14 @@ public class Categorize {
 	 * @return the string that corresponds the likely cause for this evaluation error.
 	 */
 	private String categorizeEvaluation(TestError e, String sourceFolder){
-		String result = "";
-		PatternsTool p = new PatternsTool(sourceFolder);
-		if(p.checkWeakPrecondition(e.getClassName(), e.getMethodName())) 
-			result = Cause.WEAK_PRE;
-		else 
-			result = Cause.STRONG_POST;
-		return result;
+		if(e.getPackageName() == "")
+			this.examine.setPrincipalClassName(e.getClassName());
+		else
+			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		if(this.examine.checkWeakPrecondition(e.getMethodName()))
+			return Cause.STRONG_POST;
+		else
+			return Cause.WEAK_PRE;
 	}
 	
 }

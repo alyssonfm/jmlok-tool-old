@@ -152,7 +152,7 @@ public class Examinator {
 	 * @param methodName Name of the method studied.
 	 * @return true if the Precondition clauses are too weak, false otherwise.
 	 */
-	public boolean checkStrongPostcondition(String methodName) {
+	public boolean checkWeakPrecondition(String methodName) {
 		if(methodName.equals(getOnlyClassName(this.getPrincipalClassName())))
 			methodName = "<init>";
 		try {
@@ -497,6 +497,11 @@ public class Examinator {
 		for (String var : this.variables) 
 			if(var.equals(toTest))
 				return true;
+		return false;
+	}
+	
+	public boolean checkNull(String className) {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
