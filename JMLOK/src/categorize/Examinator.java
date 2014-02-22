@@ -41,6 +41,8 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
  */
 public class Examinator {
 	
+	private static final int INF = 1002100827;
+	private static final int VAR_FALSE_VALUE = -INF;
 	private String srcDir;
 	private String principalClassName;
 	private ArrayList<String> variables;
@@ -157,13 +159,13 @@ public class Examinator {
 			methodName = "<init>";
 		try {
 			if(examineJavaAndJMLCode(this.getPrincipalClassName(), methodName, false, Operations.REQUIRES_TRUE))
-				return false;
+				return true;
 			if(examineJavaAndJMLCode(this.getPrincipalClassName(), methodName, false, Operations.ATR_MOD)) 
-				return false;
+				return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 	
 	/**
@@ -271,7 +273,7 @@ public class Examinator {
 	 */
 	private boolean requiresTrue(com.sun.tools.javac.util.List<JmlMethodClause> traversing) {
 		JCTree expression = ((JmlMethodClauseExpr) traversing.head).expression;
-		return hasTrueValue(expression) != 0;
+		return hasTrueValue(expression) != 0 && hasTrueValue(expression) != VAR_FALSE_VALUE;
 	}
 	/**
 	 * Take the code from the method to perform some examination.
@@ -431,7 +433,7 @@ public class Examinator {
 		}else if(expression instanceof JCBinary){
 			return resolveBooleanOperations(expression);
 		}
-		return 0;
+		return VAR_FALSE_VALUE;
 	}
 	/**
 	 * Calculate the value from binary expression, always considering variables with false value.
@@ -443,20 +445,36 @@ public class Examinator {
 		int lexp = hasTrueValue(((JCBinary) expression).lhs);
 		switch (((JCBinary) expression).getTag()) {
 			case JCTree.OR:
-				return ((rexp != 0) || (lexp != 0)) ? 1 : 0;
+				if((rexp != 0)&&(rexp != VAR_FALSE_VALUE) || (lexp != 0)&&(lexp != VAR_FALSE_VALUE))
+					return 1;
+				return 0;
 			case JCTree.AND:
-				return ((rexp != 0) && (lexp != 0)) ? 1 : 0;
+				if((rexp == 0)||(rexp == VAR_FALSE_VALUE) || (lexp == 0)||(lexp == VAR_FALSE_VALUE))
+					return 0;
+				return 1;
 			case JCTree.EQ:
+				if(rexp == VAR_FALSE_VALUE || lexp == VAR_FALSE_VALUE)
+					return VAR_FALSE_VALUE;
 				return ((rexp != 0) == (lexp != 0)) ? 1 : 0;
 			case JCTree.NE:
+				if(rexp == VAR_FALSE_VALUE || lexp == VAR_FALSE_VALUE)
+					return VAR_FALSE_VALUE;
 				return ((rexp != 0) != (lexp != 0)) ? 1 : 0;
 			case JCTree.LT:
+				if(rexp == VAR_FALSE_VALUE || lexp == VAR_FALSE_VALUE)
+					return VAR_FALSE_VALUE;
 				return (rexp < lexp) ? 1 : 0;
 			case JCTree.GT:
+				if(rexp == VAR_FALSE_VALUE || lexp == VAR_FALSE_VALUE)
+					return VAR_FALSE_VALUE;
 				return (rexp > lexp) ? 1 : 0;
 			case JCTree.LE:
+				if(rexp == VAR_FALSE_VALUE || lexp == VAR_FALSE_VALUE)
+					return VAR_FALSE_VALUE;
 				return (rexp <= lexp) ? 1 : 0;
 			case JCTree.GE:
+				if(rexp == VAR_FALSE_VALUE || lexp == VAR_FALSE_VALUE)
+					return VAR_FALSE_VALUE;
 				return (rexp >= lexp) ? 1 : 0;
 			default:
 				return 0;
@@ -499,10 +517,9 @@ public class Examinator {
 				return true;
 		return false;
 	}
-	
+
 	public boolean checkNull(String className) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 }
