@@ -18,10 +18,18 @@ import utils.FileUtil;
 
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCAssign;
+import com.sun.tools.javac.tree.JCTree.JCAssignOp;
 import com.sun.tools.javac.tree.JCTree.JCBinary;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCLiteral;
+import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCParens;
+import com.sun.tools.javac.tree.JCTree.JCStatement;
+import com.sun.tools.javac.tree.JCTree.JCUnary;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 
 /**
@@ -51,6 +59,14 @@ public class Examinator {
 		this.srcDir = dir;
 	}
 	/**
+	 * Change the principal class examined from this object.
+	 * @param principalClassName
+	 */
+	public void setPrincipalClassName(String principalClassName) {
+		this.principalClassName = principalClassName;
+		this.variables = FileUtil.getVariablesFromClass(principalClassName);
+	}
+	/**
 	 * Get the complete name of the principal class examined. 
 	 * @return Complete name of the principal class examined.
 	 */
@@ -58,12 +74,12 @@ public class Examinator {
 		return principalClassName;
 	}
 	/**
-	 * Change the principal class examined from this object.
-	 * @param principalClassName
+	 * Method that gets the class name and return it without the package names.
+	 * @param className The name of the class.
+	 * @return The class name without the package name.
 	 */
-	public void setPrincipalClassName(String principalClassName) {
-		this.principalClassName = principalClassName;
-		this.variables = FileUtil.getVariablesFromClass(principalClassName);
+	private String getOnlyClassName(String className){
+		return className.substring(className.lastIndexOf(".") + 1);
 	}
 	/**
 	 * Method that returns the complete java path to class, whose class name was
@@ -92,6 +108,19 @@ public class Examinator {
 		return srcDir + Constants.FILE_SEPARATOR + name;
 	}
 	/**
+	 * This method creates an File object desired with classname and type of the
+	 * file, if it's .jml or .java file.
+	 * @param classname Complete name of the class desired to examinate.
+	 * @param isJMLFile If it's an .jml or .java file.
+	 * @return The File created.
+	 */
+	private java.io.File getFileToInvestigate(String classname, boolean isJMLFile) {
+		if(isJMLFile)
+			return new java.io.File(getJmlPathFromFile(classname));
+		else
+			return new java.io.File(getJavaPathFromFile(classname));
+	}
+	/**
 	 * Method that add variables from superclass not added before to variables
 	 * list of the class.
 	 * @param classname Name of the class desired to update the variables from.
@@ -102,14 +131,7 @@ public class Examinator {
 				if(!this.variables.contains(s))
 					this.variables.add(s);
 	}
-	/**
-	 * Method that gets the class name and return it without the package names.
-	 * @param className The name of the class.
-	 * @return The class name without the package name.
-	 */
-	private String getOnlyClassName(String className){
-		return className.substring(className.lastIndexOf(".") + 1);
-	}
+	
 	/**
 	 * Checks if the Precondition clauses from a method are too strong.
 	 * @param methodName Name of the method studied.
@@ -119,12 +141,31 @@ public class Examinator {
 		if(methodName.equals(getOnlyClassName(this.getPrincipalClassName())))
 			methodName = "<init>";
 		try {
-			return examinePrecondition(this.getPrincipalClassName(), methodName, false, Operations.ATR_VAR_IN_PRECONDITION);
+			return examineJavaAndJMLCode(this.getPrincipalClassName(), methodName, false, Operations.ATR_VAR_IN_PRECONDITION);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return false;
 	}
+	/**
+	 * Checks if the Precondition clauses from a method are too weak.
+	 * @param methodName Name of the method studied.
+	 * @return true if the Precondition clauses are too weak, false otherwise.
+	 */
+	public boolean checkStrongPostcondition(String methodName) {
+		if(methodName.equals(getOnlyClassName(this.getPrincipalClassName())))
+			methodName = "<init>";
+		try {
+			if(examineJavaAndJMLCode(this.getPrincipalClassName(), methodName, false, Operations.REQUIRES_TRUE))
+				return false;
+			if(examineJavaAndJMLCode(this.getPrincipalClassName(), methodName, false, Operations.ATR_MOD)) 
+				return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+	
 	/**
 	 * Realize some examinations on precondition clauses in a desired class,
 	 * and its related class, like interfaces or superclasses. 
@@ -139,7 +180,7 @@ public class Examinator {
 	 *         the precondition expression or false.
 	 * @throws Exception When the API can't be created.
 	 */
-	private boolean examinePrecondition(String className, String methodName, boolean isJMLFile, Operations typeOfExamination) {
+	private boolean examineJavaAndJMLCode(String className, String methodName, boolean isJMLFile, Operations typeOfExamination) throws Exception {
 		JmlClassDecl ourClass = takeClassFromFile(getFileToInvestigate(className, isJMLFile), className);
 		if(ourClass == null)
 			return false;
@@ -148,30 +189,24 @@ public class Examinator {
 			return true;
 		return examineMethods(takeMethodsFromClass(ourClass, methodName), typeOfExamination);
 	}
-	
-	private boolean examineMethods(List<JmlMethodDecl> ourMethods, Operations typeOfExamination){
+	/**
+	 * Examine various methods to do some type of Operation.
+	 * @param ourMethods The methods selected for examination.
+	 * @param typeOfExamination Type of examination.
+	 * @return true If the specified examination returns true.
+	 * @throws Exception When the code were bad formulated.
+	 */
+	private boolean examineMethods(List<JmlMethodDecl> ourMethods, Operations typeOfExamination) throws Exception{
 		if(ourMethods != null){
 			for (JmlMethodDecl anMethod : ourMethods) {
 				if (anMethod.cases != null){
-					com.sun.tools.javac.util.List<JmlMethodClause> clauses = anMethod.cases.cases.head.clauses;
-					for (com.sun.tools.javac.util.List<JmlMethodClause> traversing = clauses; !traversing.isEmpty(); traversing = traversing.tail) {
-						if (traversing.head.token.equals(JmlToken.REQUIRES)) {
-							switch (typeOfExamination) {
-							case ATR_VAR_IN_PRECONDITION:
-								if(isAtrAndVarInPrecondition(anMethod, traversing))
-									return true;
-								break;
-							case REQUIRES_TRUE:
-								if(requiresTrue(anMethod, traversing))
-									return true;
-								break;
-							default:
-								break;
-							}
-						}
+					if(typeOfExamination == Operations.ATR_MOD || typeOfExamination == Operations.NULL_RELATED){
+						if(examineCodeFromMethod(anMethod, typeOfExamination))
+							return true;
+					}else if(typeOfExamination == Operations.ATR_VAR_IN_PRECONDITION || typeOfExamination == Operations.REQUIRES_TRUE){ 
+						if(examineSpecifiedRequiresClause(typeOfExamination, anMethod,anMethod.cases.cases.head.clauses))
+							return true;
 					}
-					if(typeOfExamination == Operations.REQUIRES_TRUE)
-						return true;
 				}else if(typeOfExamination == Operations.REQUIRES_TRUE){
 					return true;
 				}
@@ -179,46 +214,44 @@ public class Examinator {
 		}
 		return false;
 	}
-	
-	private boolean requiresTrue(JmlMethodDecl anMethod, com.sun.tools.javac.util.List<JmlMethodClause> traversing) {
-		JCTree expression = ((JmlMethodClauseExpr) traversing.head).expression;
-		return hasTrueValue(expression) != 0;
-	}
-	
-	private int hasTrueValue(JCTree expression) {
-		if(expression instanceof JCParens){
-			if(hasTrueValue(((JCParens)expression).expr) != 0)
-				return 1;
-		}else if(expression instanceof JCLiteral){
-			return (int) ((JCLiteral) expression).value;
-		}else if(expression instanceof JmlSingleton){
-			return 1;
-		}else if(expression instanceof JCBinary){
-			int rexp = hasTrueValue(((JCBinary) expression).rhs);
-			int lexp = hasTrueValue(((JCBinary) expression).lhs);
-			switch (((JCBinary) expression).getTag()) {
-			case JCTree.OR:
-				return ((rexp != 0) || (lexp != 0)) ? 1 : 0;
-			case JCTree.AND:
-				return ((rexp != 0) && (lexp != 0)) ? 1 : 0;
-			case JCTree.EQ:
-				return ((rexp != 0) == (lexp != 0)) ? 1 : 0;
-			case JCTree.NE:
-				return ((rexp != 0) != (lexp != 0)) ? 1 : 0;
-			case JCTree.LT:
-				return (rexp < lexp) ? 1 : 0;
-			case JCTree.GT:
-				return (rexp > lexp) ? 1 : 0;
-			case JCTree.LE:
-				return (rexp <= lexp) ? 1 : 0;
-			case JCTree.GE:
-				return (rexp >= lexp) ? 1 : 0;
-			default:
-				break;
+	/**
+	 * Examine an Requires Clause from an method to do some operations.
+	 * @param typeOfExamination The type of examination used.
+	 * @param anMethod The method searched.
+	 * @param clauses The clauses from the method.
+	 * @return true If the examination has returned true.
+	 * @throws Exception For bad-code formulation.
+	 */
+	private boolean examineSpecifiedRequiresClause(Operations typeOfExamination, JmlMethodDecl anMethod,
+			com.sun.tools.javac.util.List<JmlMethodClause> clauses) throws Exception {
+		boolean isRequiresClauseNotFounded = true;
+		for (com.sun.tools.javac.util.List<JmlMethodClause> traversing = clauses; !traversing.isEmpty(); traversing = traversing.tail) {
+			if (traversing.head.token.equals(JmlToken.REQUIRES)) {
+				isRequiresClauseNotFounded = false;
+				switch (typeOfExamination) {
+				case ATR_VAR_IN_PRECONDITION:
+					if(isAtrAndVarInPrecondition(anMethod, traversing))
+						return true;
+					break;
+				case REQUIRES_TRUE:
+					if(requiresTrue(traversing))
+						return true;
+					break;
+				default:
+					throw new Exception("Invalid Type of Examination. Bad-Code Formulation when calling examineSpecifiedRequiresClause.");
+				}
 			}
 		}
-		return 0;
+		if(typeOfExamination == Operations.REQUIRES_TRUE)
+			return isRequiresClauseNotFounded;
+		return false;
 	}
+	/**
+	 * Examine if the attribute or variable from a Class method are on the requires clauses.
+	 * @param anMethod The method examinated.
+	 * @param traversing The clause examinated from the method.
+	 * @return true If the attribute or variable was found.
+	 */
 	private boolean isAtrAndVarInPrecondition(JmlMethodDecl anMethod, com.sun.tools.javac.util.List<JmlMethodClause> traversing){
 		for (com.sun.tools.javac.util.List<JCVariableDecl> acessing = anMethod.params; 
 				!acessing.isEmpty(); acessing = acessing.tail)
@@ -232,17 +265,53 @@ public class Examinator {
 		return false;
 	}
 	/**
-	 * This method creates an File object desired with classname and type of the
-	 * file, if it's .jml or .java file.
-	 * @param classname Complete name of the class desired to examinate.
-	 * @param isJMLFile If it's an .jml or .java file.
-	 * @return The File created.
+	 * Examine if the method has some requires with value constantly true.
+	 * @param traversing The clause to examine.
+	 * @return true If the method has some requires with constant true value.
 	 */
-	private java.io.File getFileToInvestigate(String classname, boolean isJMLFile) {
-		if(isJMLFile)
-			return new java.io.File(getJmlPathFromFile(classname));
-		else
-			return new java.io.File(getJavaPathFromFile(classname));
+	private boolean requiresTrue(com.sun.tools.javac.util.List<JmlMethodClause> traversing) {
+		JCTree expression = ((JmlMethodClauseExpr) traversing.head).expression;
+		return hasTrueValue(expression) != 0;
+	}
+	/**
+	 * Take the code from the method to perform some examination.
+	 * @param anMethod The method to examine.
+	 * @param typeOfExamination The type of examination.
+	 * @return true If the examination returns it.
+	 */
+	private boolean examineCodeFromMethod(JmlMethodDecl anMethod, Operations typeOfExamination) {
+		JCBlock block = anMethod.body;
+		com.sun.tools.javac.util.List<JCVariableDecl> params = anMethod.params;
+		switch (typeOfExamination) {
+		case ATR_MOD:
+			if(isSomeVarOtAtrGettingAttribution(params, block))
+				return true;
+			break;
+		case NULL_RELATED:
+			
+			break;
+		default:
+			break;
+		}
+		return false;
+	}
+	/**
+	 * Verify if some variable from class or parameter from the method are receiving a value
+	 * in an attribution.
+	 * @param params The parameters from the method.
+	 * @param block The code lines from the method.
+	 * @return true If the method attribute value to some field.
+	 */
+	private boolean isSomeVarOtAtrGettingAttribution(com.sun.tools.javac.util.List<JCVariableDecl> params, JCBlock block) {
+		for (com.sun.tools.javac.util.List<JCStatement> traversing = block.stats; !traversing.isEmpty(); traversing = traversing.tail){
+			if(traversing.head instanceof JCExpressionStatement){
+				if(verifyAttribution(params, ((JCExpressionStatement) traversing.head).expr))
+					return true;
+				else if(((JCExpressionStatement) traversing.head).expr instanceof JCMethodInvocation)
+					return true;
+			}
+		}
+		return false;
 	}
 	/**
 	 * Take the Class desired from an file or return null.
@@ -292,24 +361,25 @@ public class Examinator {
 	 * @param methodName The method searched;
 	 * @param typeOfExamination If its RequiresTrue ou itsAtrVarInPrecondition
 	 * @return true if it in any of the associated, they got one field in the desired clause.
+	 * @throws Exception If any Operation was bad-formulated on Code.
 	 */
-	private boolean examineAllClassAssociated(String className, String methodName, Operations typeOfExamination) {
+	private boolean examineAllClassAssociated(String className, String methodName, Operations typeOfExamination) throws Exception {
 		ArrayList<String> interfacesOfClass = FileUtil.getInterfacesPathFromClass(className);
 		if(!interfacesOfClass.isEmpty())
 			for (String i : interfacesOfClass)
-				if(examinePrecondition(i, methodName, false, typeOfExamination))
+				if(examineJavaAndJMLCode(i, methodName, false, typeOfExamination))
 					return true;
 		String superClassOfClass = FileUtil.getSuperclassPathFromClass(className, srcDir);
 		if(!(superClassOfClass == ""))
-			if(examinePrecondition(superClassOfClass, methodName, false, typeOfExamination))
+			if(examineJavaAndJMLCode(superClassOfClass, methodName, false, typeOfExamination))
 				return true;
-		if(examinePrecondition(className, methodName, true, typeOfExamination))
+		if(examineJavaAndJMLCode(className, methodName, true, typeOfExamination))
 			return true;
 		return false;
 	}
 	/**
-	 * Verify all components of the Method Clause, if it's Binary or Ident type, that there are at least
 	 * one field equals to the String toTest given.
+	 * Verify all components of the Method Clause, if it's Binary or Ident type, that there are at least
 	 * @param traversing Method Clause to verify.
 	 * @param toTest Name of the field to compare.
 	 * @param isFieldParameterOfMethod true, if the type of the field are just methods parameters or false. 
@@ -345,36 +415,89 @@ public class Examinator {
 		}
 		return false;
 	}
-	
 	/**
-	 * Checks if the Precondition clauses from a method are too weak.
-	 * @param methodName Name of the method studied.
-	 * @return true if the Precondition clauses are too weak, false otherwise.
+	 * Verify if the boolean expression have a true value despite of any variable values. 
+	 * @param expression The boolean expression examinated.
+	 * @return 1 When the expression is always true.
 	 */
-	public boolean checkWeakPrecondition(String methodName) {
-		if(isRequiresTrue(methodName)) return true;
-		if(isAttModifiedOnMethod(methodName)) return true;
+	private int hasTrueValue(JCTree expression) {
+		if(expression instanceof JCParens){
+			if(hasTrueValue(((JCParens)expression).expr) != 0)
+				return 1;
+		}else if(expression instanceof JCLiteral){
+			return (int) ((JCLiteral) expression).value;
+		}else if(expression instanceof JmlSingleton){
+			return 1;
+		}else if(expression instanceof JCBinary){
+			return resolveBooleanOperations(expression);
+		}
+		return 0;
+	}
+	/**
+	 * Calculate the value from binary expression, always considering variables with false value.
+	 * @param expression The binary boolean expression examinated.
+	 * @return 1 When the expression has value true. 
+	 */
+	private int resolveBooleanOperations(JCTree expression) {
+		int rexp = hasTrueValue(((JCBinary) expression).rhs);
+		int lexp = hasTrueValue(((JCBinary) expression).lhs);
+		switch (((JCBinary) expression).getTag()) {
+			case JCTree.OR:
+				return ((rexp != 0) || (lexp != 0)) ? 1 : 0;
+			case JCTree.AND:
+				return ((rexp != 0) && (lexp != 0)) ? 1 : 0;
+			case JCTree.EQ:
+				return ((rexp != 0) == (lexp != 0)) ? 1 : 0;
+			case JCTree.NE:
+				return ((rexp != 0) != (lexp != 0)) ? 1 : 0;
+			case JCTree.LT:
+				return (rexp < lexp) ? 1 : 0;
+			case JCTree.GT:
+				return (rexp > lexp) ? 1 : 0;
+			case JCTree.LE:
+				return (rexp <= lexp) ? 1 : 0;
+			case JCTree.GE:
+				return (rexp >= lexp) ? 1 : 0;
+			default:
+				return 0;
+		}
+	}
+	/**
+	 * Verify if the expression is an assign and its assign to some value in parameters or variables from class.
+	 * @param params The parameters from the method.
+	 * @param expr The expression to analyze.
+	 * @return true if the expression is an assign to variable or parameter of the method.
+	 */
+	private boolean verifyAttribution(com.sun.tools.javac.util.List<JCVariableDecl> params, JCExpression expr) {
+		if(expr instanceof JCUnary){
+			String toTest = ((JCUnary) expr).arg.toString();
+			if(compareFieldsWith(params, toTest))
+				return true;
+		}else if(expr instanceof JCAssign){
+			String toTest = ((JCAssign) expr).lhs.toString();
+			if(compareFieldsWith(params, toTest))
+				return true;
+		}else if(expr instanceof JCAssignOp){
+			String toTest = ((JCAssignOp) expr).lhs.toString();
+			if(compareFieldsWith(params, toTest))
+				return true;
+		}
 		return false;
 	}
-	
 	/**
-	 * Method that checks if there are some parameter of the method modified in
-	 * the method body.
-	 * @param methodName the name of the method that contains a nonconformance.
-	 * @return true if there are some parameter modified, false otherwise.
+	 * Verify if the name given is some of the parameters of a method or variables from the class.
+	 * @param params The parameters from the method do analyze.
+	 * @param toTest The name to search.
+	 * @return true If the name correspond to some of the fields.
 	 */
-	private boolean isAttModifiedOnMethod(String methodName) {
+	private boolean compareFieldsWith(com.sun.tools.javac.util.List<JCVariableDecl> params, String toTest) {
+		for (com.sun.tools.javac.util.List<JCVariableDecl> acessing = params; !acessing.isEmpty(); acessing = acessing.tail)
+			if(acessing.head.name.toString().equals(toTest))
+				return true;
+		for (String var : this.variables) 
+			if(var.equals(toTest))
+				return true;
 		return false;
 	}
-	
-	/**
-	 * Checks if in one of the JML conditions there are an requires true, that
-	 * being when there are an requires true; or requires (* ... *); (informal)
-	 * or an Absence of requires, which by default are require true.
-	 * @param methodName Name of the method searched.
-	 * @return true if requires true were found, false otherwise.
-	 */
-	private boolean isRequiresTrue(String methodName) {
-		return false;
-	}
+
 }

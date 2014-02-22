@@ -119,10 +119,10 @@ public class Categorize {
 			this.examine.setPrincipalClassName(e.getClassName());
 		else
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
-		if(this.examine.checkWeakPrecondition(e.getMethodName()))
-			return Cause.WEAK_PRE;
-		else
+		if(this.examine.checkStrongPostcondition(e.getMethodName()))
 			return Cause.STRONG_POST;
+		else
+			return Cause.WEAK_PRE;
 	}
 	
 	/**

@@ -243,8 +243,7 @@ public class FileUtil {
 				variables.add(aux);
 			}
 		} catch (ClassNotFoundException e) {
-			System.err
-					.println("Error in method FileUtil.getVariablesFromClass()");
+			System.err.println("Error in method FileUtil.getVariablesFromClass()");
 		}
 		return variables;
 	}

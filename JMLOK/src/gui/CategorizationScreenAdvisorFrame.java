@@ -87,11 +87,11 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblMethodName);
 		
 		lblClassNameSetter = new JLabel("");
-		lblClassNameSetter.setBounds(262, 162, 134, 15);
+		lblClassNameSetter.setBounds(223, 165, 134, 15);
 		contentPane.add(lblClassNameSetter);
 		
 		lblMethodNameSetter = new JLabel("");
-		lblMethodNameSetter.setBounds(262, 218, 134, 15);
+		lblMethodNameSetter.setBounds(223, 221, 134, 15);
 		contentPane.add(lblMethodNameSetter);
 		
 		JLabel lblCause = new JLabel("Cause");
@@ -99,7 +99,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblCause);
 		
 		lblLikelyCauseSetter = new JLabel("");
-		lblLikelyCauseSetter.setBounds(262, 272, 143, 15);
+		lblLikelyCauseSetter.setBounds(223, 275, 143, 15);
 		contentPane.add(lblLikelyCauseSetter);
 		
 		lblLikelyCauseExplanation = new JLabel("");
@@ -111,7 +111,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblPackageName);
 		
 		lblPackageNameSetter = new JLabel("");
-		lblPackageNameSetter.setBounds(269, 108, 134, 15);
+		lblPackageNameSetter.setBounds(219, 109, 134, 15);
 		contentPane.add(lblPackageNameSetter);
 		
 		listNonconformances = new JList(namesNC);
