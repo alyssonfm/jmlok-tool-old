@@ -174,9 +174,12 @@ public class FileUtil {
 				determinedLine = counterLines + 4;
 			if(counterLines >= wishedLine - 2 && counterLines < determinedLine)
 				toReturn += line + "\n";
-			if(counterLines == determinedLine)
+			if(counterLines == determinedLine){
+				f.close();
 				return toReturn + line;
+			}
 		}
+		f.close();
 		return toReturn;
 	}
 

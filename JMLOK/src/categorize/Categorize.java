@@ -3,7 +3,6 @@ package categorize;
 import java.util.HashSet;
 import java.util.Set;
 
-import detect.Detect;
 import detect.TestError;
 
 /**
@@ -143,7 +142,7 @@ public class Categorize {
 			this.examine.setPrincipalClassName(e.getClassName());
 		else 
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
-		if(this.examine.checkNull(e.getClassName())) 
+		if(this.examine.checkNull(e.getMethodName())) 
 			return Cause.NULL_RELATED;
 		else if(this.examine.checkWeakPrecondition(e.getMethodName())) 
 			return Cause.WEAK_PRE;
@@ -163,7 +162,7 @@ public class Categorize {
 			this.examine.setPrincipalClassName(e.getClassName());
 		else 
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
-		if(this.examine.checkNull(e.getClassName())) 
+		if(this.examine.checkNull(e.getMethodName())) 
 			return Cause.NULL_RELATED;
 		else if(this.examine.checkWeakPrecondition(e.getMethodName())) 
 			return Cause.WEAK_PRE;

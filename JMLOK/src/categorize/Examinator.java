@@ -12,6 +12,7 @@ import org.jmlspecs.openjml.JmlTree.JmlMethodClause;
 import org.jmlspecs.openjml.JmlTree.JmlMethodClauseExpr;
 import org.jmlspecs.openjml.JmlTree.JmlMethodDecl;
 import org.jmlspecs.openjml.JmlTree.JmlSingleton;
+import org.jmlspecs.openjml.JmlTree.JmlVariableDecl;
 
 import utils.Constants;
 import utils.FileUtil;
@@ -28,6 +29,7 @@ import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCParens;
+import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.JCUnary;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
@@ -41,14 +43,16 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
  */
 public class Examinator {
 	
-	private static final int INF = 1002100827;
+	private static final int INF = Integer.MAX_VALUE;
 	private static final int VAR_FALSE_VALUE = -INF;
 	private String srcDir;
 	private String principalClassName;
 	private ArrayList<String> variables;
+	private boolean isAllVarUpdated = false;
+	private String[] primitiveTypesFromJava = {"byte", "short", "int", "long", "double", "char", "boolean", "float"};
 	
 	public enum Operations {
-		ATR_VAR_IN_PRECONDITION, REQUIRES_TRUE, ATR_MOD, NULL_RELATED 		
+		ATR_VAR_IN_PRECONDITION, REQUIRES_TRUE, ATR_MOD, ISNT_NULL_RELATED 		
 	}
 	
 	/**
@@ -67,6 +71,13 @@ public class Examinator {
 	public void setPrincipalClassName(String principalClassName) {
 		this.principalClassName = principalClassName;
 		this.variables = FileUtil.getVariablesFromClass(principalClassName);
+	}
+	/**
+	 * 
+	 * @param value
+	 */
+	public void resetIsAllVarUpdated(){
+		this.isAllVarUpdated = false;
 	}
 	/**
 	 * Get the complete name of the principal class examined. 
@@ -167,6 +178,22 @@ public class Examinator {
 		}
 		return false;
 	}
+	/**
+	 * 
+	 * @param methodName
+	 * @return
+	 */
+	public boolean checkNull(String methodName){
+		try {
+			if(!examineJavaAndJMLCode(this.principalClassName, "<init>", false, Operations.ISNT_NULL_RELATED))
+				return true;
+		} catch (Exception e) {
+				e.printStackTrace();
+		}
+		this.setPrincipalClassName(this.getPrincipalClassName());
+		this.resetIsAllVarUpdated();
+		return false;
+	}
 	
 	/**
 	 * Realize some examinations on precondition clauses in a desired class,
@@ -189,6 +216,8 @@ public class Examinator {
 		updateVariables(className);
 		if(!isJMLFile && examineAllClassAssociated(className, methodName, typeOfExamination))
 			return true;
+		if(isAllVarUpdated && typeOfExamination == Operations.ISNT_NULL_RELATED)
+			verifyVarInitializedOutsideMethods(ourClass);
 		return examineMethods(takeMethodsFromClass(ourClass, methodName), typeOfExamination);
 	}
 	/**
@@ -201,11 +230,11 @@ public class Examinator {
 	private boolean examineMethods(List<JmlMethodDecl> ourMethods, Operations typeOfExamination) throws Exception{
 		if(ourMethods != null){
 			for (JmlMethodDecl anMethod : ourMethods) {
-				if (anMethod.cases != null){
-					if(typeOfExamination == Operations.ATR_MOD || typeOfExamination == Operations.NULL_RELATED){
-						if(examineCodeFromMethod(anMethod, typeOfExamination))
-							return true;
-					}else if(typeOfExamination == Operations.ATR_VAR_IN_PRECONDITION || typeOfExamination == Operations.REQUIRES_TRUE){ 
+				if(typeOfExamination == Operations.ATR_MOD || typeOfExamination == Operations.ISNT_NULL_RELATED){
+					if(examineCodeFromMethod(anMethod, typeOfExamination))
+						return true;
+				}if (anMethod.cases != null){
+					if(typeOfExamination == Operations.ATR_VAR_IN_PRECONDITION || typeOfExamination == Operations.REQUIRES_TRUE){ 
 						if(examineSpecifiedRequiresClause(typeOfExamination, anMethod,anMethod.cases.cases.head.clauses))
 							return true;
 					}
@@ -289,8 +318,9 @@ public class Examinator {
 			if(isSomeVarOtAtrGettingAttribution(params, block))
 				return true;
 			break;
-		case NULL_RELATED:
-			
+		case ISNT_NULL_RELATED:
+			if(isAllVariableInitialized(block))
+				return true;
 			break;
 		default:
 			break;
@@ -315,6 +345,32 @@ public class Examinator {
 		}
 		return false;
 	}
+	/**
+	 * 
+	 * @param block
+	 * @return
+	 */
+	private boolean isAllVariableInitialized(JCBlock block) {
+		for (com.sun.tools.javac.util.List<JCStatement> traversing = block.stats; !traversing.isEmpty(); traversing = traversing.tail){
+			if(traversing.head instanceof JCExpressionStatement){
+				if(((JCExpressionStatement) traversing.head).expr instanceof JCAssign 
+				&& !((JCAssign) ((JCExpressionStatement) traversing.head).expr).rhs.toString().equals("null")){
+					String toTest = ((JCAssign) ((JCExpressionStatement) traversing.head).expr).lhs.toString();		
+					int i = 0; boolean isNecessaryToRemove = false;
+					for(i = 0; i < this.variables.size(); i++){
+						if(toTest.equals(this.variables.get(i)) || toTest.equals("this." + this.variables.get(i))){
+							isNecessaryToRemove = true;
+							break;
+						}
+					}
+					if(isNecessaryToRemove)
+						this.variables.remove(i);
+				}
+			}
+		}
+		return this.variables.isEmpty();
+	}
+	
 	/**
 	 * Take the Class desired from an file or return null.
 	 * @param f File to search.
@@ -366,19 +422,43 @@ public class Examinator {
 	 * @throws Exception If any Operation was bad-formulated on Code.
 	 */
 	private boolean examineAllClassAssociated(String className, String methodName, Operations typeOfExamination) throws Exception {
-		ArrayList<String> interfacesOfClass = FileUtil.getInterfacesPathFromClass(className);
-		if(!interfacesOfClass.isEmpty())
-			for (String i : interfacesOfClass)
-				if(examineJavaAndJMLCode(i, methodName, false, typeOfExamination))
-					return true;
+		if(typeOfExamination == Operations.ATR_VAR_IN_PRECONDITION || typeOfExamination == Operations.REQUIRES_TRUE){
+			ArrayList<String> interfacesOfClass = FileUtil.getInterfacesPathFromClass(className);
+			if(!interfacesOfClass.isEmpty())
+				for (String i : interfacesOfClass)
+					if(examineJavaAndJMLCode(i, methodName, false, typeOfExamination))
+						return true;
+		}
 		String superClassOfClass = FileUtil.getSuperclassPathFromClass(className, srcDir);
-		if(!(superClassOfClass == ""))
+		if(!(superClassOfClass == "")){
 			if(examineJavaAndJMLCode(superClassOfClass, methodName, false, typeOfExamination))
 				return true;
-		if(examineJavaAndJMLCode(className, methodName, true, typeOfExamination))
-			return true;
+		}else
+			isAllVarUpdated = true;
+		if(typeOfExamination == Operations.ATR_VAR_IN_PRECONDITION || typeOfExamination == Operations.REQUIRES_TRUE){
+			if(examineJavaAndJMLCode(className, methodName, true, typeOfExamination))
+				return true;
+		}
 		return false;
 	}
+	/**
+	 * 
+	 * @param ourClass
+	 */
+	private void verifyVarInitializedOutsideMethods(JmlClassDecl ourClass) {
+		com.sun.tools.javac.util.List<JCTree> traverser;
+		for (traverser = ourClass.defs; !traverser.isEmpty(); traverser = traverser.tail){
+			if(traverser.head instanceof JmlVariableDecl) 
+				if(((JmlVariableDecl)traverser.head).init != null){
+					String toRemove = ((JmlVariableDecl)traverser.head).name.toString();
+					this.variables.remove(this.variables.indexOf(toRemove));
+				}else if( ((JmlVariableDecl)traverser.head).vartype instanceof JCPrimitiveTypeTree){
+					String toRemove = ((JmlVariableDecl)traverser.head).name.toString();
+					this.variables.remove(this.variables.indexOf(toRemove));
+				}
+		}
+	}
+	
 	/**
 	 * one field equals to the String toTest given.
 	 * Verify all components of the Method Clause, if it's Binary or Ident type, that there are at least
@@ -513,13 +593,11 @@ public class Examinator {
 			if(acessing.head.name.toString().equals(toTest))
 				return true;
 		for (String var : this.variables) 
-			if(var.equals(toTest))
+			if(toTest.equals(var)){
 				return true;
-		return false;
-	}
-
-	public boolean checkNull(String className) {
-		// TODO Auto-generated method stub
+			}else if(toTest.equals("this."+var)){
+				return true;
+			}
 		return false;
 	}
 }
