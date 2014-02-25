@@ -451,7 +451,7 @@ public class PatternsTool {
 	}
 
 	public static void main(String[] args) throws Exception {
-	//	Examinator p = new Examinator("/home/quantus/git/jmlok-tool/src/");
+		//Examinator p = new Examinator("/home/quantus/git/jmlok-tool/src/");
 		//p.setPrincipalClassName("sampleExample.Carro");
 		//System.out.println(p.checkStrongPrecondition("Carro"));
 	}
