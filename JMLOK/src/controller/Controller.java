@@ -4,6 +4,7 @@ import gui.CategorizationScreenAdvisorFrame;
 import gui.DetectionScreenAdvisorFrame;
 
 import java.awt.EventQueue;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -72,7 +73,13 @@ public class Controller {
 
 	private static void setSystemVariableClassPath(String libFolder) {
 		String pathVar = FileUtil.getListPathPrinted(libFolder);
-		System.setProperty("CLASSPATH", pathVar);
+		try {
+			String s = "cmd /c SETX CLASSPATH \""+ pathVar + "\" -m";
+			Runtime.getRuntime().exec(s);
+			System.out.println(s);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static Set<TestError> fulfillDetectPhase(int compiler, String source, String lib, String time){

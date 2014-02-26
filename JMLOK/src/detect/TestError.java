@@ -12,6 +12,7 @@ public class TestError {
 	private String message = "";
 	private String className = "";
 	private String methodName = "";
+	private String packageAndClassCalling = "";
 	private String packageName = "";
 	private String name = "";
 	private String testFile = "";
@@ -29,13 +30,16 @@ public class TestError {
 	 */
 	public TestError(String name, String testFile, String message, String type, String details) {
 		this.setTypeJmlc(type);
-		this.setMessage(message);
-		this.setClassName();
-		this.setTestFile(testFile);
-		this.setMethodName();
-		this.setName(name);
-		this.setPackage(details);
-		this.setNumberRevealsNC(details);
+		if(!this.isMeaningless()){
+			this.setMessage(message);
+			this.setClassName();
+			this.setTestFile(testFile);
+			this.setMethodName();
+			this.setName(name);
+			this.setPackage(details);
+			this.setNumberRevealsNC(details);
+			this.setPackageAndClassCalling(details);
+		}
 	}
 
 	/**
@@ -220,15 +224,18 @@ public class TestError {
 	 * @param details It's the string containing more detailed info about the test case.
 	 */
 	public void setPackage(String details) {
-		int firstIndex = details.indexOf("at ");
-		int lastIndex = 0;
-		if(this.getType().equals(CategoryName.CONSTRAINT)){
-			lastIndex = details.indexOf("." + this.className);
-		} else {
-			lastIndex = details.indexOf("." + this.className + ".");
+		if (!isMeaningless()) {
+			int firstIndex = details.indexOf("at ");
+			int lastIndex = 0;
+			if(this.getType().equals(CategoryName.CONSTRAINT)){
+				firstIndex = details.indexOf("at ", firstIndex + 3);
+				lastIndex = details.indexOf("." + this.className, firstIndex);
+			} else {
+				lastIndex = details.indexOf("." + this.className + ".");
+			}
+			if(lastIndex != -1)
+				this.packageName = details.substring(firstIndex + 3, lastIndex);
 		}
-		if(lastIndex != -1)
-			this.packageName = details.substring(firstIndex + 3, lastIndex);
 	}
 
 	/**
@@ -269,7 +276,12 @@ public class TestError {
 	 */
 	public void setNumberRevealsNC(String details) {
 		int firstIndex = details.lastIndexOf(".java:");
-		Integer aux = new Integer(details.substring(firstIndex+6, details.lastIndexOf(")"))); 
+		Integer aux = new Integer("0");
+		if(getType() != CategoryName.EVALUATION){
+			// aux = new Integer(details.substring(firstIndex+6, details.lastIndexOf(")")));			
+		}else{
+			aux = new Integer(details.substring(firstIndex+6, details.lastIndexOf(")")));
+		}
 		this.numberRevealsNC = aux.intValue();
 	}	
 
@@ -291,6 +303,33 @@ public class TestError {
 	@Override
 	public int hashCode() {
 		return getType().length()+getMethodName().length()+getClassName().length();
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public String getPackageAndClassCalling() {
+		return packageAndClassCalling;
+	}
+	/**
+	 * 
+	 * @param classCalling
+	 */
+	public void setPackageAndClassCalling(String details) {
+		int firstIndex = 0, temp = 0;
+		if(getType().equals(CategoryName.CONSTRAINT)){
+			while((temp = details.indexOf("$JmlSurrogate", firstIndex + 1)) != -1){
+				firstIndex = temp;
+			}
+			if(firstIndex != 0){
+				firstIndex = details.indexOf("at ", firstIndex);
+				int lastIndex = details.indexOf(".", firstIndex);
+				this.packageAndClassCalling += details.substring(firstIndex + 3, lastIndex);
+				firstIndex = lastIndex + 1;
+				lastIndex = details.indexOf(".", firstIndex);
+				this.packageAndClassCalling += "." + details.substring(firstIndex, lastIndex);
+			}
+		}
 	}
 
 }
