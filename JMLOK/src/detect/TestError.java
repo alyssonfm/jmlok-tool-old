@@ -168,10 +168,12 @@ public class TestError {
 		String result = "";
 		String aux = this.message;
 		String[] text = aux.split(" ");
-		if(!this.type.equals(CategoryName.EVALUATION)){
-			result = text[2].substring(0, text[2].indexOf("."));
-		}else 
-			result = text[3].substring(text[3].indexOf(";")+1, text[3].indexOf(".java"));
+		if (isJmlRac()) {
+			if(!this.type.equals(CategoryName.EVALUATION)){
+				result = text[2].substring(0, text[2].indexOf("."));
+			}else 
+				result = text[3].substring(text[3].indexOf(";")+1, text[3].indexOf(".java"));
+		}
 		this.className = result;
 	}
 	
@@ -194,10 +196,13 @@ public class TestError {
 		if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
 			result = text[2].substring(text[2].indexOf(".")+1, text[2].length());
 		} else if(this.type.equals(CategoryName.INVARIANT)){
-			if(text[2].contains("init")) result = getClassName();
-			result = text[2].substring(text[2].lastIndexOf(".")+1, text[2].indexOf("@"));
+			if(text[2].contains("init")){
+				result = getClassName();
+			} else {
+				result = text[2].substring(text[2].indexOf(".")+1, text[2].indexOf("@"));
+			}
 		} else if(this.type.equals(CategoryName.CONSTRAINT)){
-			result = text[2].substring(text[2].lastIndexOf(".")+1, text[2].indexOf("@"));
+			result = text[2].substring(text[2].indexOf(".")+1, text[2].indexOf("@"));
 		}
 		this.methodName = result;
 	}
@@ -216,7 +221,12 @@ public class TestError {
 	 */
 	public void setPackage(String details) {
 		int firstIndex = details.indexOf("at ");
-		int lastIndex = details.indexOf("." + this.className + ".");
+		int lastIndex = 0;
+		if(this.getType().equals(CategoryName.CONSTRAINT)){
+			lastIndex = details.indexOf("." + this.className);
+		} else {
+			lastIndex = details.indexOf("." + this.className + ".");
+		}
 		if(lastIndex != -1)
 			this.packageName = details.substring(firstIndex + 3, lastIndex);
 	}

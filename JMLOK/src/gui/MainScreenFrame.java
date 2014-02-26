@@ -67,7 +67,7 @@ public class MainScreenFrame extends JFrame {
 	public MainScreenFrame() {
 		setTitle("JMLOK");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 520, 220);
+		setBounds(100, 100, 520, 180);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -123,6 +123,7 @@ public class MainScreenFrame extends JFrame {
 		btnRun = new JButton("Run");
 		btnRun.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				lblRunningApp.setVisible(true);
 				run();
 				buttonPressed = true;
 			}
