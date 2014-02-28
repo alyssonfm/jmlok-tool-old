@@ -114,12 +114,13 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		lblPackageNameSetter.setBounds(219, 109, 134, 15);
 		contentPane.add(lblPackageNameSetter);
 		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(24, 81, 178, 240);
+		contentPane.add(scrollPane);
+		
 		listNonconformances = new JList(namesNC);
+		scrollPane.setViewportView(listNonconformances);
 		listNonconformances.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listNonconformances.setBounds(24, 81, 178, 240);
-		contentPane.add(listNonconformances);
-		highLit = new DefaultHighlighter();
-		painter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
 		listNonconformances.addListSelectionListener(
 			new ListSelectionListener() {
 				@Override
@@ -128,6 +129,8 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 				}
 			}
 		);
+		highLit = new DefaultHighlighter();
+		painter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
 		
 		
 		JScrollPane scrollPane2 = new JScrollPane();

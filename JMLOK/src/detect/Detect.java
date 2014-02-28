@@ -19,9 +19,9 @@ import utils.FileUtil;
  */
 public class Detect {
 
-	private boolean isLinux = false;
-	private boolean isJMLC = false;
-	private boolean isOpenJML = false;
+	private boolean isLinux;
+	private boolean isJMLC;
+	private boolean isOpenJML;
 	private String jmlLib;
 	private File jmlokDir = new File(Constants.TEMP_DIR);
 	private File javaBin = new File(Constants.SOURCE_BIN);
@@ -183,7 +183,7 @@ public class Detect {
 				Project p = new Project();
 				p.setUserProperty("source_folder", sourceFolder);
 				p.setUserProperty("jmlBin", Constants.JML_BIN);
-				p.setUserProperty("jmlcExec", (isLinux)?(Constants.JMLC_SRC + "jmlc-unix"):(Constants.JMLC_SRC+"jmlc.bat"));
+				p.setUserProperty("jmlcExec", (isLinux)?(Constants.JMLC_SRC + "jmlc-unix"):("jmlc.bat"));
 				p.init();
 				ProjectHelper helper = ProjectHelper.getProjectHelper();
 				p.addReference("ant.projectHelper", helper);
@@ -200,29 +200,28 @@ public class Detect {
 				helper.parse(p, buildFile);
 				p.executeTarget("openJML");
 			}
-		} else {
-			if(isJMLC){
-				File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "jmlcCompiler2.xml");
-				Project p = new Project();
-				p.setUserProperty("source_folder", sourceFolder);
-				p.setUserProperty("jmlBin", Constants.JML_BIN);
-				p.setUserProperty("jmlcExec", (isLinux)?(Constants.JMLC_SRC + "jmlc-unix"):("jmlc.bat"));
-				p.init();
-				ProjectHelper helper = ProjectHelper.getProjectHelper();
-				p.addReference("ant.projectHelper", helper);
-				helper.parse(p, buildFile);
-				p.executeTarget("jmlc");
-			} else if(isOpenJML){
-				File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "openjmlCompiler2.xml");
-				Project p = new Project();
-				p.setUserProperty("source_folder", sourceFolder);
-				p.setUserProperty("jmlBin", Constants.JML_BIN);
-				p.init();
-				ProjectHelper helper = ProjectHelper.getProjectHelper();
-				p.addReference("ant.projectHelper", helper);
-				helper.parse(p, buildFile);
-				p.executeTarget("openJML");
-			}
+		}
+		if(isJMLC){
+			File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "jmlcCompiler2.xml");
+			Project p = new Project();
+			p.setUserProperty("source_folder", sourceFolder);
+			p.setUserProperty("jmlBin", Constants.JML_BIN);
+			p.setUserProperty("jmlcExec", (isLinux)?(Constants.JMLC_SRC + "jmlc-unix"):("jmlc.bat"));
+			p.init();
+			ProjectHelper helper = ProjectHelper.getProjectHelper();
+			p.addReference("ant.projectHelper", helper);
+			helper.parse(p, buildFile);
+			p.executeTarget("jmlc");
+		} else if(isOpenJML){
+			File buildFile = new File("ant" + Constants.FILE_SEPARATOR + "openjmlCompiler2.xml");
+			Project p = new Project();
+			p.setUserProperty("source_folder", sourceFolder);
+			p.setUserProperty("jmlBin", Constants.JML_BIN);
+			p.init();
+			ProjectHelper helper = ProjectHelper.getProjectHelper();
+			p.addReference("ant.projectHelper", helper);
+			helper.parse(p, buildFile);
+			p.executeTarget("openJML");
 		}
 	}
 	

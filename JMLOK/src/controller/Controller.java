@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.tools.ant.types.CommandlineJava.SysProperties;
 
 import categorize.Categorize;
 import categorize.Nonconformance;
@@ -34,10 +33,11 @@ public class Controller {
 	
 	private static void showDetectionScreen(int compiler, String lib, String time) {
 	    final ByteArrayOutputStream caos = setToolsForDetectionScreen(compiler, lib, time);
+	    final int numNC = errors.size();
 	    EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					DetectionScreenAdvisorFrame frame = new DetectionScreenAdvisorFrame(caos);
+					DetectionScreenAdvisorFrame frame = new DetectionScreenAdvisorFrame(caos, numNC);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -76,6 +76,7 @@ public class Controller {
 		try {
 			String s = "cmd /c SETX CLASSPATH \""+ pathVar + "\" -m";
 			Runtime.getRuntime().exec(s);
+			System.out.println(s);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

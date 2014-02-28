@@ -22,7 +22,7 @@ public class DetectionScreenAdvisorFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public DetectionScreenAdvisorFrame(ByteArrayOutputStream baos) {
+	public DetectionScreenAdvisorFrame(ByteArrayOutputStream baos, int numNonConformities) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 700, 520);
 		contentPane = new JPanel();

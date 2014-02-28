@@ -49,7 +49,6 @@ public class Examinator {
 	private String principalClassName;
 	private ArrayList<String> variables;
 	private boolean isAllVarUpdated = false;
-	private String[] primitiveTypesFromJava = {"byte", "short", "int", "long", "double", "char", "boolean", "float"};
 	
 	public enum Operations {
 		ATR_VAR_IN_PRECONDITION, REQUIRES_TRUE, ATR_MOD, ISNT_NULL_RELATED 		
@@ -507,6 +506,8 @@ public class Examinator {
 			if(hasTrueValue(((JCParens)expression).expr) != 0)
 				return 1;
 		}else if(expression instanceof JCLiteral){
+			if(((JCLiteral) expression).value == null)
+				return VAR_FALSE_VALUE;
 			return (int) ((JCLiteral) expression).value;
 		}else if(expression instanceof JmlSingleton){
 			return 1;

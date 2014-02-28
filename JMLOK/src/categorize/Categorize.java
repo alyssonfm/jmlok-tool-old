@@ -158,10 +158,11 @@ public class Categorize {
 	 * @return the string that corresponds the likely cause for this history constraint error.
 	 */
 	private String categorizeConstraint(TestError e, String sourceFolder){
-		if(e.getPackageName() == "")
-			this.examine.setPrincipalClassName(e.getClassName());
-		else 
-			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		String classInvolved = (e.getPackageAndClassCalling().equals("")) ? 
+							   ((e.getPackageName() == "") ? (e.getClassName())
+							 : (e.getPackageName() + "." + e.getClassName()))
+							 : (e.getPackageAndClassCalling());
+		this.examine.setPrincipalClassName(classInvolved);
 		if(this.examine.checkNull(e.getMethodName())) 
 			return Cause.NULL_RELATED;
 		else if(this.examine.checkWeakPrecondition(e.getMethodName())) 
@@ -183,9 +184,9 @@ public class Categorize {
 		else
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
 		if(this.examine.checkWeakPrecondition(e.getMethodName()))
-			return Cause.STRONG_POST;
-		else
 			return Cause.WEAK_PRE;
+		else
+			return Cause.STRONG_POST;
 	}
 	
 }
