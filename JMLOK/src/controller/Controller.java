@@ -6,16 +6,15 @@ import gui.DetectionScreenAdvisorFrame;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
+import utils.FileUtil;
 import categorize.Categorize;
 import categorize.Nonconformance;
-import utils.FileUtil;
 import detect.Detect;
 import detect.TestError;
 
@@ -33,11 +32,10 @@ public class Controller {
 	
 	private static void showDetectionScreen(int compiler, String lib, String time) {
 	    final ByteArrayOutputStream caos = setToolsForDetectionScreen(compiler, lib, time);
-	    final int numNC = errors.size();
 	    EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					DetectionScreenAdvisorFrame frame = new DetectionScreenAdvisorFrame(caos, numNC);
+					DetectionScreenAdvisorFrame frame = new DetectionScreenAdvisorFrame(caos);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -76,7 +74,6 @@ public class Controller {
 		try {
 			String s = "cmd /c SETX CLASSPATH \""+ pathVar + "\" -m";
 			Runtime.getRuntime().exec(s);
-			System.out.println(s);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

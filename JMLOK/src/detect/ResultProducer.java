@@ -148,7 +148,7 @@ public class ResultProducer {
 						text.append(in.readLine());
 						text.append("\n");
 					}
-					TestError te = new TestError(text.toString(), line);
+					TestError te = new TestError(text.toString(), line, "");
 					if(te.isNonconformance()){
 						result.add(te);
 					}
