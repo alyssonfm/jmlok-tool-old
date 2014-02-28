@@ -4,6 +4,7 @@ import gui.CategorizationScreenAdvisorFrame;
 import gui.DetectionScreenAdvisorFrame;
 
 import java.awt.EventQueue;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.tools.ant.types.CommandlineJava.SysProperties;
 
 import categorize.Categorize;
 import categorize.Nonconformance;
@@ -32,11 +34,10 @@ public class Controller {
 	
 	private static void showDetectionScreen(int compiler, String lib, String time) {
 	    final ByteArrayOutputStream caos = setToolsForDetectionScreen(compiler, lib, time);
-	    final int numNC = errors.size();
 	    EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					DetectionScreenAdvisorFrame frame = new DetectionScreenAdvisorFrame(caos, numNC);
+					DetectionScreenAdvisorFrame frame = new DetectionScreenAdvisorFrame(caos);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -72,7 +73,12 @@ public class Controller {
 
 	private static void setSystemVariableClassPath(String libFolder) {
 		String pathVar = FileUtil.getListPathPrinted(libFolder);
-		System.setProperty("CLASSPATH", pathVar);
+		try {
+			String s = "cmd /c SETX CLASSPATH \""+ pathVar + "\" -m";
+			Runtime.getRuntime().exec(s);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static Set<TestError> fulfillDetectPhase(int compiler, String source, String lib, String time){

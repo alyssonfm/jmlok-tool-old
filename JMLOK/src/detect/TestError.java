@@ -12,6 +12,7 @@ public class TestError {
 	private String message = "";
 	private String className = "";
 	private String methodName = "";
+	private String packageAndClassCalling = "";
 	private String packageName = "";
 	private String name = "";
 	private String testFile = "";
@@ -29,13 +30,16 @@ public class TestError {
 	 */
 	public TestError(String name, String testFile, String message, String type, String details) {
 		this.setTypeJmlc(type);
-		this.setMessage(message);
-		this.setClassName();
-		this.setTestFile(testFile);
-		this.setMethodName();
-		this.setName(name);
-		this.setPackage(details);
-		this.setNumberRevealsNC(details);
+		if(!this.isMeaningless()){
+			this.setMessage(message);
+			this.setClassName(); 
+			this.setTestFile(testFile);
+			this.setMethodName(details);
+			this.setName(name);
+			this.setPackage(details);
+			this.setNumberRevealsNC(details);
+			this.setPackageAndClassCalling(details);
+		}
 	}
 
 	/**
@@ -43,11 +47,11 @@ public class TestError {
 	 * @param message - the message of the error.
 	 * @param type - the type of the error.
 	 */
-	public TestError(String message, String type){
+	public TestError(String message, String type, String details){
 		this.setTypeOpenjml(type);
 		this.setMessage(message);
 		this.setClassName();
-		this.setMethodName();
+		this.setMethodName(details);
 	}
 	
 	/**
@@ -172,7 +176,7 @@ public class TestError {
 			if(!this.type.equals(CategoryName.EVALUATION)){
 				result = text[2].substring(0, text[2].indexOf("."));
 			}else 
-				result = text[3].substring(text[3].indexOf(";")+1, text[3].indexOf(".java"));
+				result = text[3].substring(text[3].indexOf("\"")+1, text[3].indexOf(".java"));
 		}
 		this.className = result;
 	}
@@ -189,20 +193,27 @@ public class TestError {
 	/**
 	 * Method that sets the method name for the current test error.
 	 */
-	public void setMethodName(){
+	public void setMethodName(String details){
 		String result = "";
-		String aux = this.message;
-		String[] text = aux.split(" ");
-		if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
-			result = text[2].substring(text[2].indexOf(".")+1, text[2].length());
-		} else if(this.type.equals(CategoryName.INVARIANT)){
-			if(text[2].contains("init")){
-				result = getClassName();
-			} else {
+		if(isJmlRac()){
+			String aux = this.message;
+			String[] text = aux.split(" ");
+			if (this.type.equals(CategoryName.PRECONDITION) || this.type.equals(CategoryName.POSTCONDITION)) {
+				result = text[2].substring(text[2].indexOf(".")+1, text[2].length());
+			} else if(this.type.equals(CategoryName.INVARIANT)){
+				if(text[2].contains("init")){
+					result = getClassName();
+				} else {
+					result = text[2].substring(text[2].indexOf(".")+1, text[2].indexOf("@"));
+				}
+			} else if(this.type.equals(CategoryName.CONSTRAINT)){
 				result = text[2].substring(text[2].indexOf(".")+1, text[2].indexOf("@"));
+			} else {
+				int firstIndex = details.indexOf("at ");
+				firstIndex = details.indexOf("$", firstIndex);
+				int lastIndex = details.indexOf("$", firstIndex+1);
+				result = details.substring(firstIndex+1, lastIndex);
 			}
-		} else if(this.type.equals(CategoryName.CONSTRAINT)){
-			result = text[2].substring(text[2].indexOf(".")+1, text[2].indexOf("@"));
 		}
 		this.methodName = result;
 	}
@@ -223,7 +234,8 @@ public class TestError {
 		int firstIndex = details.indexOf("at ");
 		int lastIndex = 0;
 		if(this.getType().equals(CategoryName.CONSTRAINT)){
-			lastIndex = details.indexOf("." + this.className);
+			firstIndex = details.indexOf("at ", firstIndex + 3);
+			lastIndex = details.indexOf("." + this.className, firstIndex);
 		} else {
 			lastIndex = details.indexOf("." + this.className + ".");
 		}
@@ -268,8 +280,10 @@ public class TestError {
 	 * @param details The details from error, where line was specified.
 	 */
 	public void setNumberRevealsNC(String details) {
-		int firstIndex = details.lastIndexOf(".java:");
-		Integer aux = new Integer(details.substring(firstIndex+6, details.lastIndexOf(")"))); 
+		int firstIndex = details.lastIndexOf(this.testFile);
+		firstIndex = details.indexOf(":", firstIndex) + 1;
+		int lastIndex = details.indexOf(")", firstIndex);
+		Integer aux = new Integer(details.substring(firstIndex, lastIndex));
 		this.numberRevealsNC = aux.intValue();
 	}	
 
@@ -291,6 +305,33 @@ public class TestError {
 	@Override
 	public int hashCode() {
 		return getType().length()+getMethodName().length()+getClassName().length();
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public String getPackageAndClassCalling() {
+		return packageAndClassCalling;
+	}
+	/**
+	 * 
+	 * @param classCalling
+	 */
+	public void setPackageAndClassCalling(String details) {
+		int firstIndex = 0, temp = 0;
+		if(getType().equals(CategoryName.CONSTRAINT)){
+			while((temp = details.indexOf("$JmlSurrogate", firstIndex + 1)) != -1){
+				firstIndex = temp;
+			}
+			if(firstIndex != 0){
+				firstIndex = details.indexOf("at ", firstIndex);
+				int lastIndex = details.indexOf(".", firstIndex);
+				this.packageAndClassCalling += details.substring(firstIndex + 3, lastIndex);
+				firstIndex = lastIndex + 1;
+				lastIndex = details.indexOf(".", firstIndex);
+				this.packageAndClassCalling += "." + details.substring(firstIndex, lastIndex);
+			}
+		}
 	}
 
 }
