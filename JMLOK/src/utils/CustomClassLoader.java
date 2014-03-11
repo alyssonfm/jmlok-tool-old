@@ -25,7 +25,6 @@ public class CustomClassLoader extends ClassLoader {
             fis.read(data);
             Class<?> res = defineClass(name, data, 0, data.length);
             fis.close();
-
             return res;
         } catch(Exception e) {
             return super.findClass(name);

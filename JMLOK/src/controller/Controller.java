@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
+import utils.ClassPathHacker;
 import utils.FileUtil;
 import categorize.Categorize;
 import categorize.Nonconformance;
@@ -25,9 +26,9 @@ public class Controller {
 	private static String source;
 	
 	public static void prepareToDetectPhase(int compiler, String sourceFolder, String lib, String time){
-		setSystemVariableClassPath(lib);
-		source = sourceFolder;
-		showDetectionScreen(compiler, lib, time);
+		 setSystemVariableClassPath(lib);
+		 source = sourceFolder;
+		 showDetectionScreen(compiler, lib, time);
 	}
 	
 	private static void showDetectionScreen(int compiler, String lib, String time) {
@@ -70,13 +71,21 @@ public class Controller {
 	}
 
 	private static void setSystemVariableClassPath(String libFolder) {
+		boolean isLinux = System.getProperty("os.name").equals("Linux");
 		String pathVar = FileUtil.getListPathPrinted(libFolder);
-		try {
+		for(String jar : pathVar.split((isLinux)?":":";")){
+			try {
+				ClassPathHacker.addFile(jar);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		/* try {
 			String s = "cmd /c SETX CLASSPATH \""+ pathVar + "\" -m";
 			Runtime.getRuntime().exec(s);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} */
 	}
 
 	private static Set<TestError> fulfillDetectPhase(int compiler, String source, String lib, String time){

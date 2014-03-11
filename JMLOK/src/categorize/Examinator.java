@@ -51,7 +51,7 @@ public class Examinator {
 	private boolean isAllVarUpdated = false;
 	
 	public enum Operations {
-		ATR_VAR_IN_PRECONDITION, REQUIRES_TRUE, ATR_MOD, ISNT_NULL_RELATED 		
+		ATR_VAR_IN_PRECONDITION, REQUIRES_TRUE, ATR_MOD, ISNT_NULL_RELATED, ENSURES_TRUE 		
 	}
 	
 	/**
@@ -172,6 +172,8 @@ public class Examinator {
 				return true;
 			if(examineJavaAndJMLCode(this.getPrincipalClassName(), methodName, false, Operations.ATR_MOD)) 
 				return true;
+			if(examineJavaAndJMLCode(this.getPrincipalClassName(), methodName, false, Operations.ENSURES_TRUE))
+				return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -233,8 +235,8 @@ public class Examinator {
 					if(examineCodeFromMethod(anMethod, typeOfExamination))
 						return true;
 				}if (anMethod.cases != null){
-					if(typeOfExamination == Operations.ATR_VAR_IN_PRECONDITION || typeOfExamination == Operations.REQUIRES_TRUE){ 
-						if(examineSpecifiedRequiresClause(typeOfExamination, anMethod,anMethod.cases.cases.head.clauses))
+					if(typeOfExamination == Operations.ATR_VAR_IN_PRECONDITION || typeOfExamination == Operations.REQUIRES_TRUE || typeOfExamination == Operations.ENSURES_TRUE){ 
+						if(examineSpecifiedPrePostClause(typeOfExamination, anMethod,anMethod.cases.cases.head.clauses))
 							return true;
 					}
 				}else if(typeOfExamination == Operations.REQUIRES_TRUE){
@@ -242,6 +244,8 @@ public class Examinator {
 				}
 			}
 		}
+		if(typeOfExamination == Operations.ISNT_NULL_RELATED)
+			return this.variables.isEmpty();
 		return false;
 	}
 	/**
@@ -252,9 +256,9 @@ public class Examinator {
 	 * @return true If the examination has returned true.
 	 * @throws Exception For bad-code formulation.
 	 */
-	private boolean examineSpecifiedRequiresClause(Operations typeOfExamination, JmlMethodDecl anMethod,
+	private boolean examineSpecifiedPrePostClause(Operations typeOfExamination, JmlMethodDecl anMethod,
 			com.sun.tools.javac.util.List<JmlMethodClause> clauses) throws Exception {
-		boolean isRequiresClauseNotFounded = true;
+		boolean isRequiresClauseNotFounded = true, isEnsuresClauseNotFounded = true;
 		for (com.sun.tools.javac.util.List<JmlMethodClause> traversing = clauses; !traversing.isEmpty(); traversing = traversing.tail) {
 			if (traversing.head.token.equals(JmlToken.REQUIRES)) {
 				isRequiresClauseNotFounded = false;
@@ -264,16 +268,25 @@ public class Examinator {
 						return true;
 					break;
 				case REQUIRES_TRUE:
-					if(requiresTrue(traversing))
+					if(isClauseTrue(traversing))
 						return true;
 					break;
 				default:
-					throw new Exception("Invalid Type of Examination. Bad-Code Formulation when calling examineSpecifiedRequiresClause.");
+					break;
+				}
+			}
+			if (traversing.head.token.equals(JmlToken.ENSURES)){
+				isEnsuresClauseNotFounded = false;
+				if(typeOfExamination.equals(Operations.ENSURES_TRUE)){
+					if(isClauseTrue(traversing))
+						return true;
 				}
 			}
 		}
 		if(typeOfExamination == Operations.REQUIRES_TRUE)
 			return isRequiresClauseNotFounded;
+		if(typeOfExamination == Operations.ENSURES_TRUE)
+			return isEnsuresClauseNotFounded;
 		return false;
 	}
 	/**
@@ -299,7 +312,7 @@ public class Examinator {
 	 * @param traversing The clause to examine.
 	 * @return true If the method has some requires with constant true value.
 	 */
-	private boolean requiresTrue(com.sun.tools.javac.util.List<JmlMethodClause> traversing) {
+	private boolean isClauseTrue(com.sun.tools.javac.util.List<JmlMethodClause> traversing) {
 		JCTree expression = ((JmlMethodClauseExpr) traversing.head).expression;
 		return hasTrueValue(expression) != 0 && hasTrueValue(expression) != VAR_FALSE_VALUE;
 	}

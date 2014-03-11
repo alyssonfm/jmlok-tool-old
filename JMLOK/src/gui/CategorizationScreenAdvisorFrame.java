@@ -47,7 +47,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		initializingStringForSelectionList(nonconformance);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 700, 520);
+		setBounds(100, 100, 800, 500);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -66,7 +66,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblTestCases);
 		
 		JButton btnSaveResults = new JButton("Save Results");
-		btnSaveResults.setBounds(446, 353, 143, 25);
+		btnSaveResults.setBounds(599, 358, 143, 25);
 		contentPane.add(btnSaveResults);
 		
 		JButton btnExit = new JButton("Exit");
@@ -75,7 +75,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 				closeWindow();
 			}
 		});
-		btnExit.setBounds(446, 407, 143, 25);
+		btnExit.setBounds(599, 412, 143, 25);
 		contentPane.add(btnExit);
 		
 		JLabel lblClassName = new JLabel("Class Name");
@@ -87,11 +87,11 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblMethodName);
 		
 		lblClassNameSetter = new JLabel("");
-		lblClassNameSetter.setBounds(223, 165, 134, 15);
+		lblClassNameSetter.setBounds(223, 165, 349, 15);
 		contentPane.add(lblClassNameSetter);
 		
 		lblMethodNameSetter = new JLabel("");
-		lblMethodNameSetter.setBounds(223, 221, 134, 15);
+		lblMethodNameSetter.setBounds(223, 221, 349, 15);
 		contentPane.add(lblMethodNameSetter);
 		
 		JLabel lblCause = new JLabel("Cause");
@@ -99,7 +99,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblCause);
 		
 		lblLikelyCauseSetter = new JLabel("");
-		lblLikelyCauseSetter.setBounds(223, 275, 143, 15);
+		lblLikelyCauseSetter.setBounds(223, 275, 349, 15);
 		contentPane.add(lblLikelyCauseSetter);
 		
 		lblLikelyCauseExplanation = new JLabel("");
@@ -111,7 +111,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblPackageName);
 		
 		lblPackageNameSetter = new JLabel("");
-		lblPackageNameSetter.setBounds(219, 109, 134, 15);
+		lblPackageNameSetter.setBounds(219, 109, 353, 15);
 		contentPane.add(lblPackageNameSetter);
 		
 		JScrollPane scrollPane = new JScrollPane();
@@ -132,15 +132,12 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		highLit = new DefaultHighlighter();
 		painter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
 		
-		
-		JScrollPane scrollPane2 = new JScrollPane();
-		scrollPane2.setAlignmentX(LEFT_ALIGNMENT);
-		scrollPane2.setAlignmentY(TOP_ALIGNMENT);
-		scrollPane2.setBounds(24, 353, 401, 86);
-		contentPane.add(scrollPane2);
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(24, 359, 531, 84);
+		contentPane.add(scrollPane_1);
 		
 		textAreaTestCases = new JTextArea();
-		scrollPane2.setViewportView(textAreaTestCases);
+		scrollPane_1.setViewportView(textAreaTestCases);
 		
 		JLabel lblWereDetected = new JLabel("Were detected: ");
 		lblWereDetected.setBounds(24, 27, 139, 15);
@@ -155,7 +152,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblNonconfomities);
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(423, 27, 192, 301);
+		panel.setBounds(582, 27, 192, 301);
 		contentPane.add(panel);
 		
 	}
