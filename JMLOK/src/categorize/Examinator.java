@@ -45,8 +45,9 @@ public class Examinator {
 	
 	private static final int INF = Integer.MAX_VALUE;
 	private static final int VAR_FALSE_VALUE = -INF;
-	private String srcDir;
-	private String principalClassName;
+	private String srcDir = "";
+	private String principalClassName = "";
+	private String methodCalling = "";
 	private ArrayList<String> variables;
 	private boolean isAllVarUpdated = false;
 	
@@ -70,6 +71,7 @@ public class Examinator {
 	public void setPrincipalClassName(String principalClassName) {
 		this.principalClassName = principalClassName;
 		this.variables = FileUtil.getVariablesFromClass(principalClassName);
+		this.isAllVarUpdated = false;
 	}
 	/**
 	 * 
@@ -150,6 +152,7 @@ public class Examinator {
 	 * @return true if the Precondition clauses are too strong, or false.
 	 */
 	public boolean checkStrongPrecondition(String methodName){
+		this.setMethodCalling("");
 		if(methodName.equals(getOnlyClassName(this.getPrincipalClassName())))
 			methodName = "<init>";
 		try {
@@ -165,6 +168,7 @@ public class Examinator {
 	 * @return true if the Precondition clauses are too weak, false otherwise.
 	 */
 	public boolean checkWeakPrecondition(String methodName) {
+		this.setMethodCalling("");
 		if(methodName.equals(getOnlyClassName(this.getPrincipalClassName())))
 			methodName = "<init>";
 		try {
@@ -419,7 +423,8 @@ public class Examinator {
 		com.sun.tools.javac.util.List<JCTree> traverser;
 		for (traverser = clazz.defs; !traverser.isEmpty(); traverser = traverser.tail)
 			if(traverser.head.getKind().equals(Tree.Kind.METHOD) 
-			   && ((JmlMethodDecl)traverser.head).name.toString().equals(methodName)){
+			   && ((JmlMethodDecl)traverser.head).name.toString().equals(methodName)
+			   && (traverser.head.toString().contains(this.methodCalling))){
 				methods.add((JmlMethodDecl) traverser.head);
 			}
 		return methods;
@@ -461,12 +466,19 @@ public class Examinator {
 		com.sun.tools.javac.util.List<JCTree> traverser;
 		for (traverser = ourClass.defs; !traverser.isEmpty(); traverser = traverser.tail){
 			if(traverser.head instanceof JmlVariableDecl) 
-				if(((JmlVariableDecl)traverser.head).init != null){
+				if( ((JmlVariableDecl)traverser.head).vartype instanceof JCPrimitiveTypeTree){
 					String toRemove = ((JmlVariableDecl)traverser.head).name.toString();
 					this.variables.remove(this.variables.indexOf(toRemove));
-				}else if( ((JmlVariableDecl)traverser.head).vartype instanceof JCPrimitiveTypeTree){
-					String toRemove = ((JmlVariableDecl)traverser.head).name.toString();
-					this.variables.remove(this.variables.indexOf(toRemove));
+				} else if(((JmlVariableDecl)traverser.head).init != null){
+					if(((JmlVariableDecl)traverser.head).init instanceof JCLiteral){
+						if(((JCLiteral)((JmlVariableDecl)traverser.head).init).value != null){
+							String toRemove = ((JmlVariableDecl)traverser.head).name.toString();
+							this.variables.remove(this.variables.indexOf(toRemove));			
+						}
+					}else{
+						String toRemove = ((JmlVariableDecl)traverser.head).name.toString();
+						this.variables.remove(this.variables.indexOf(toRemove));			
+					}
 				}
 		}
 	}
@@ -613,5 +625,11 @@ public class Examinator {
 				return true;
 			}
 		return false;
+	}
+	public String getMethodCalling() {
+		return methodCalling;
+	}
+	public void setMethodCalling(String methodCalling) {
+		this.methodCalling = methodCalling;
 	}
 }

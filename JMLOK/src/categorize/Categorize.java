@@ -34,7 +34,9 @@ public class Categorize {
 				n.setPackageName(te.getPackageName());
 				n.setType(new Precondition());
 				n.setTest(te.getName());
-				n.setCause(categorizePrecondition(te, sourceFolder));
+				n.setMessage(te.getMessage());
+				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
+				n.setCause(categorizePrecondition(te, sourceFolder, n.getMethodCalling()));
 				n.setTestFile(te.getTestFile());
 				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
@@ -46,7 +48,9 @@ public class Categorize {
 				n.setPackageName(te.getPackageName());
 				n.setType(new Postcondition());
 				n.setTest(te.getName());
-				n.setCause(categorizePostcondition(te, sourceFolder));
+				n.setMessage(te.getMessage());
+				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
+				n.setCause(categorizePostcondition(te, sourceFolder, n.getMethodCalling()));
 				n.setTestFile(te.getTestFile());
 				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
@@ -58,7 +62,9 @@ public class Categorize {
 				n.setPackageName(te.getPackageName());
 				n.setType(new Invariant());
 				n.setTest(te.getName());
-				n.setCause(categorizeInvariant(te, sourceFolder));
+				n.setMessage(te.getMessage());
+				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
+				n.setCause(categorizeInvariant(te, sourceFolder, n.getMethodCalling()));
 				n.setTestFile(te.getTestFile());
 				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
@@ -70,7 +76,9 @@ public class Categorize {
 				n.setPackageName(te.getPackageName());
 				n.setType(new Constraint());
 				n.setTest(te.getName());
-				n.setCause(categorizeConstraint(te, sourceFolder));
+				n.setMessage(te.getMessage());
+				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
+				n.setCause(categorizeConstraint(te, sourceFolder, n.getMethodCalling()));
 				n.setTestFile(te.getTestFile());
 				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
@@ -82,7 +90,9 @@ public class Categorize {
 				n.setPackageName(te.getPackageName());
 				n.setType(new Evaluation());
 				n.setTest(te.getName());
-				n.setCause(categorizeEvaluation(te, sourceFolder));
+				n.setMessage(te.getMessage());
+				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
+				n.setCause(categorizeEvaluation(te, sourceFolder, n.getMethodCalling()));				
 				n.setTestFile(te.getTestFile());
 				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
 				nonconformances.add(n);
@@ -99,13 +109,15 @@ public class Categorize {
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
+	 * @param string 
 	 * @return the string that corresponds the likely cause for this precondition error.
 	 */
-	private String categorizePrecondition(TestError e, String sourceFolder){
+	private String categorizePrecondition(TestError e, String sourceFolder, String methodCalling){
 		if(e.getPackageName() == "")
 			this.examine.setPrincipalClassName(e.getClassName());
 		else
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		this.examine.setMethodCalling(methodCalling);
 		if(this.examine.checkStrongPrecondition(e.getMethodName())) 
 			return Cause.STRONG_PRE;
 		else 
@@ -117,13 +129,15 @@ public class Categorize {
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
+	 * @param string 
 	 * @return the string that corresponds the likely cause for this postcondition error.
 	 */
-	private String categorizePostcondition(TestError e, String sourceFolder){
+	private String categorizePostcondition(TestError e, String sourceFolder, String methodCalling){
 		if(e.getPackageName() == "")
 			this.examine.setPrincipalClassName(e.getClassName());
 		else
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		this.examine.setMethodCalling(methodCalling);
 		if(this.examine.checkWeakPrecondition(e.getMethodName()))
 			return Cause.WEAK_PRE;
 		else
@@ -135,13 +149,15 @@ public class Categorize {
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
+	 * @param methodCalling 
 	 * @return the string that corresponds the likely cause for this invariant error.
 	 */
-	private String categorizeInvariant(TestError e, String sourceFolder){
+	private String categorizeInvariant(TestError e, String sourceFolder, String methodCalling){
 		if(e.getPackageName() == "")
 			this.examine.setPrincipalClassName(e.getClassName());
 		else 
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		this.examine.setMethodCalling(methodCalling);
 		if(this.examine.checkNull(e.getMethodName())) 
 			return Cause.NULL_RELATED;
 		else if(this.examine.checkWeakPrecondition(e.getMethodName())) 
@@ -155,14 +171,16 @@ public class Categorize {
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
+	 * @param string 
 	 * @return the string that corresponds the likely cause for this history constraint error.
 	 */
-	private String categorizeConstraint(TestError e, String sourceFolder){
+	private String categorizeConstraint(TestError e, String sourceFolder, String methodCalling){
 		String classInvolved = (e.getPackageAndClassCalling().equals("")) ? 
 							   ((e.getPackageName() == "") ? (e.getClassName())
 							 : (e.getPackageName() + "." + e.getClassName()))
 							 : (e.getPackageAndClassCalling());
 		this.examine.setPrincipalClassName(classInvolved);
+		this.examine.setMethodCalling(methodCalling);
 		if(this.examine.checkNull(e.getMethodName())) 
 			return Cause.NULL_RELATED;
 		else if(this.examine.checkWeakPrecondition(e.getMethodName())) 
@@ -176,13 +194,15 @@ public class Categorize {
 	 * the source folder that contains the class that has a nonconformance.
 	 * @param e - the nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
+	 * @param string 
 	 * @return the string that corresponds the likely cause for this evaluation error.
 	 */
-	private String categorizeEvaluation(TestError e, String sourceFolder){
+	private String categorizeEvaluation(TestError e, String sourceFolder, String methodCalling){
 		if(e.getPackageName() == "")
 			this.examine.setPrincipalClassName(e.getClassName());
 		else
 			this.examine.setPrincipalClassName(e.getPackageName() + "." + e.getClassName());
+		this.examine.setMethodCalling(methodCalling);
 		if(this.examine.checkWeakPrecondition(e.getMethodName()))
 			return Cause.WEAK_PRE;
 		else

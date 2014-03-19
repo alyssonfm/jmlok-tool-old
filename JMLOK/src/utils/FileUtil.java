@@ -158,6 +158,35 @@ public class FileUtil {
 	}
 	
 	/**
+	 * Method to read a file received as parameter.
+	 * 
+	 * @param name
+	 *            - the name of the file to be read.
+	 * @return - the content of the file.
+	 */
+	public static String readSingleLineOfFile(String name, int line) {
+		String result = "";
+		int lines = 0;
+		try {
+			FileReader fr = new FileReader(new File(name));
+			BufferedReader buf = new BufferedReader(fr);
+			while (buf.ready()) {
+				if(lines == line){
+					while((result.trim().startsWith("*") || result.trim().startsWith("/") || result.trim().startsWith("@")) && buf.ready())
+						result = buf.readLine();
+					break;
+				}
+				result = buf.readLine();
+				lines++;
+			}
+			buf.close();
+		} catch (Exception e) {
+			System.err.println("Error in method FileUtil.readSingleLineOfFile()");
+		}
+		return result;
+	}
+	
+	/**
 	 * Returns some lines for more detailed info about the test cases whom discovered specified error.
 	 * @param testFile The test file where the error was called.
 	 * @param wishedLine The line of the file where the error was founded. 
@@ -207,7 +236,7 @@ public class FileUtil {
 			docBuilder = docFactory.newDocumentBuilder();
 			doc = docBuilder.newDocument();
 
-			Element root = doc.createElement("Nonconformances");
+			Element root = doc.createElement("NonconformancesSuite");
 			doc.appendChild(root);
 
 			TransformerFactory transformerFactory = TransformerFactory

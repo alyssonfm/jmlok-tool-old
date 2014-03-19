@@ -62,8 +62,8 @@ public class Detect {
 	public Set<TestError> detect(String source, String lib, String timeout) {
 		execute(source, lib, timeout);
 		ResultProducer r = new ResultProducer();
-		if(isJMLC) return r.generateResult(Constants.JMLC_COMPILER);
-		else return r.generateResult(Constants.OPENJML_COMPILER);
+		if(isJMLC) return r.listErrors(Constants.JMLC_COMPILER);
+		else return r.listErrors(Constants.OPENJML_COMPILER);
 	}
 	
 	/**

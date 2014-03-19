@@ -2,6 +2,7 @@ package categorize;
 
 import java.io.IOException;
 
+import utils.Constants;
 import utils.FileUtil;
 
 /**
@@ -19,6 +20,8 @@ public class Nonconformance {
 	private String methodName = "";
 	private String packageName = "";
 	private String linesFromTestFile = "";
+	private String methodCalling = "";
+	private String message;
 	
 	public Nonconformance() {
 	}
@@ -127,4 +130,30 @@ public class Nonconformance {
 		return result;
 	}
 
+	public void setMethodCalling(int lineOfErrorInJava, String sourceFolder) {
+		if(lineOfErrorInJava == -1)
+			this.methodCalling = "";
+		else if(lineOfErrorInJava == 0)
+			this.methodCalling = "\"\\o/, Do not find me.\"";
+		else{
+			String name = (this.packageName + "." + this.className).replace('.', '/');
+			name += ".java";
+		    this.methodCalling = FileUtil.readSingleLineOfFile(sourceFolder + Constants.FILE_SEPARATOR + name, lineOfErrorInJava);
+		    int temp = this.methodCalling.lastIndexOf("{");
+		    if(temp != -1)
+		    	this.methodCalling = this.methodCalling.substring(0, this.methodCalling.lastIndexOf("{")).trim();
+		}
+	}
+
+	public String getMethodCalling() {
+		return this.methodCalling;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+	public String getMessage() {
+		return this.message;
+	}
 }

@@ -6,9 +6,11 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -20,6 +22,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 
+import controller.Controller;
 import categorize.Nonconformance;
 
 public class CategorizationScreenAdvisorFrame extends JFrame {
@@ -38,6 +41,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 	private Highlighter highLit;
 	private Highlighter.HighlightPainter painter;
 	private JLabel lblNonconfomancesNumberSetter;
+	private JFileChooser dirLibs;
 	
 
 	/**
@@ -46,6 +50,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 	 public CategorizationScreenAdvisorFrame(List<Nonconformance> nonconformance) {
 		initializingStringForSelectionList(nonconformance);
 		
+		dirLibs = new JFileChooser();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 500);
 		contentPane = new JPanel();
@@ -66,6 +71,11 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		contentPane.add(lblTestCases);
 		
 		JButton btnSaveResults = new JButton("Save Results");
+		btnSaveResults.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				saveResults();
+			}
+		});
 		btnSaveResults.setBounds(599, 358, 143, 25);
 		contentPane.add(btnSaveResults);
 		
@@ -155,6 +165,21 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		panel.setBounds(582, 27, 192, 301);
 		contentPane.add(panel);
 		
+	}
+
+	protected void saveResults() {
+		String path = "";
+		dirLibs.setApproveButtonText("Select");
+		dirLibs.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		if (dirLibs.showOpenDialog(CategorizationScreenAdvisorFrame.this) == JFileChooser.APPROVE_OPTION) {
+			path = dirLibs.getSelectedFile().getAbsolutePath();
+		}
+		try {
+			Controller.saveResultsInXML(path);
+			JOptionPane.showMessageDialog(this, "Results saved.");
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Invalid Directory.");
+		}
 	}
 
 	private void setChangesFromSelectionOnTheList() {

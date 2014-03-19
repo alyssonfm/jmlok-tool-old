@@ -26,9 +26,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import sun.security.krb5.internal.crypto.Nonce;
 import utils.Constants;
 import utils.FileUtil;
 import categorize.CategoryName;
+import categorize.Nonconformance;
 
 /**
  * Class used to creates the file with the distinct nonconformances detected by the tool.
@@ -63,8 +65,8 @@ public class ResultProducer {
 	 * @param compiler = the integer that indicates the JML compiler used.
 	 * @return - the of list the distinct nonconformances that were detected by the JMLOK tool.
 	 */
-	public Set<TestError> listErrors(String path, int compiler){
-		File results = new File(path);
+	public Set<TestError> listErrors(int compiler){
+		File results = new File(Constants.TEST_RESULTS);
 		Set<TestError> result;
 		if(compiler == Constants.JMLC_COMPILER){
 			result = getErrorsFromXML(results);
@@ -170,11 +172,20 @@ public class ResultProducer {
 	 * @param message = the message of the corresponding nonconformance.
 	 * @return - an element to put into the xml file.
 	 */
-	private Element createsElement(Document doc, String type, String message){
-		Element e = doc.createElement("error");
-		e.setAttribute("type", type);
-		e.setAttribute("message", message);
-		return e;
+	private static Element createsElement(Document doc, Nonconformance n){
+		Element nonconformance = doc.createElement("Nonconformance");
+		nonconformance.setAttribute("class", n.getClassName());
+		nonconformance.setAttribute("method", n.getMethodName());
+		nonconformance.setAttribute("type", n.getType());
+		nonconformance.setAttribute("likelyCause", n.getCause());
+		
+		Element error = doc.createElement("Error");
+		error.setAttribute("testName", n.getTest());
+		error.setAttribute("testFile", n.getTestFile());
+		error.setAttribute("message", n.getMessage());
+		
+		nonconformance.appendChild(error);
+		return nonconformance;
 	}
 	
 	/**
@@ -182,12 +193,11 @@ public class ResultProducer {
 	 * @param compiler = the integer that indicates the JML compiler used. 
 	 * @return - the list of nonconformances detected by the JMLOK tool.
 	 */
-	public Set<TestError> generateResult(int compiler){
-		Set<TestError> errors = listErrors(Constants.TEST_RESULTS, compiler);
+	public static Set<Nonconformance> generateResult(Set<Nonconformance> nonconformances){
 		Document doc = FileUtil.createXMLFile(Constants.RESULTS);
 		Element raiz = doc.getDocumentElement();
-		for (TestError testError : errors) {
-			Element e = createsElement(doc, testError.getType(), testError.getMessage());
+		for (Nonconformance nc : nonconformances) {
+			Element e = createsElement(doc, nc);
 			raiz.appendChild(e);
 		}
 		DOMSource source = new DOMSource(doc);
@@ -198,6 +208,7 @@ public class ResultProducer {
 			result = new StreamResult(new FileOutputStream(Constants.RESULTS));
 			transformer = transFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			transformer.transform(source, result);
 		} catch (FileNotFoundException e2) {
 			e2.printStackTrace();
@@ -206,7 +217,7 @@ public class ResultProducer {
 		} catch (TransformerException e1) {
 			e1.printStackTrace();
 		}
-		return errors;
+		return nonconformances;
 	}
 
 }

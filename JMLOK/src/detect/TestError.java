@@ -18,6 +18,7 @@ public class TestError {
 	private String testFile = "";
 	private boolean jmlRac = true;
 	private boolean meaningless = false;
+	private int lineOfErrorInJava = 0;
 	private int numberRevealsNC = 0;
 
 	/**
@@ -38,6 +39,7 @@ public class TestError {
 			this.setName(name);
 			this.setPackage(details);
 			this.setNumberRevealsNC(details);
+			this.setLineOfErrorInJava();
 			this.setPackageAndClassCalling(details);
 		}
 	}
@@ -331,6 +333,21 @@ public class TestError {
 				lastIndex = details.indexOf(".", firstIndex);
 				this.packageAndClassCalling += "." + details.substring(firstIndex, lastIndex);
 			}
+		}
+	}
+
+	public int getLineOfErrorInJava() {
+		return lineOfErrorInJava;
+	}
+
+	public void setLineOfErrorInJava() {
+		int firstIndex = this.message.indexOf("line ");
+		if(firstIndex == -1)
+			this.lineOfErrorInJava = firstIndex;
+		else{
+			int temp = this.message.indexOf(',', firstIndex + 5);
+			int lastIndex = (temp == -1)? 0 : temp;
+			this.lineOfErrorInJava = (lastIndex == 0)? 0 : Integer.parseInt(this.message.substring(firstIndex + 5, lastIndex));
 		}
 	}
 

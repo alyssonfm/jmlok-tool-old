@@ -4,8 +4,13 @@ import gui.CategorizationScreenAdvisorFrame;
 import gui.DetectionScreenAdvisorFrame;
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -13,10 +18,12 @@ import java.util.Set;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import utils.ClassPathHacker;
+import utils.Constants;
 import utils.FileUtil;
 import categorize.Categorize;
 import categorize.Nonconformance;
 import detect.Detect;
+import detect.ResultProducer;
 import detect.TestError;
 
 public class Controller {
@@ -97,9 +104,17 @@ public class Controller {
 	private static List<Nonconformance> fulfillCategorizePhase(Set<TestError> errors, String source) {
 		Categorize c = new Categorize();
 		List<Nonconformance> x = new ArrayList<Nonconformance>();
-		for(Nonconformance n : c.categorize(errors, source))
+		nonconformities = c.categorize(errors, source);
+		ResultProducer.generateResult(nonconformities);
+		for(Nonconformance n : nonconformities)
 			x.add(n);
 		return x;
+	}
+
+	public static void saveResultsInXML(String path) throws IOException {
+		Path source = (new File(Constants.RESULTS)).toPath();
+		Path target = (new File(path + Constants.FILE_SEPARATOR + "results.xml")).toPath();
+		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 	}
 
 }
