@@ -245,15 +245,4 @@ public class Detect {
 		helper.parse(p, buildFile);
 		p.executeTarget("run_tests");
 	}
-	
-	/**
-	 * Main method - used to test purposes.
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		//usar apenas o jmlc agora.
-		/*int x = 10;
-		Detect d = new Detect(Constants.JMLC_COMPILER);
-		d.detect("/home/quantus/useful_paste/sampleExample/", "", "1");*/
-	}
 }

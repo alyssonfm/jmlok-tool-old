@@ -8,18 +8,17 @@ import detect.TestError;
 /**
  * Class used to categorize the nonconformances discovered into the SUT.
  * @author Alysson Milanez and Dennis Souza.
- *
  */
 public class Categorize {
 
 	private Examinator examine; 
 	
 	/**
-	 * Method that receives the set of nonconformances, and the source folder and 
-	 * returns a set of nonconformances with category and likely cause. This is the principal method of the Categorize module, 
-	 * because in this method we categorize all nonconformances discovered in Detect module.
-	 * @param errors - the set of nonconformances detected by the Detect module.
-	 * @param sourceFolder - the source folder of the SUT.
+	 * Method that receives the set of nonconformances, and the source folder and returns a set of 
+	 * nonconformances with category and likely cause. This is the principal method of the Categorize 
+	 * module, because in this method we categorize all nonconformances discovered in Detect module.
+	 * @param errors - The set of nonconformances detected by the Detect module.
+	 * @param sourceFolder - The source folder of the SUT.
 	 * @return a set of nonconformances with categories and likely causes.
 	 */
 	public Set<Nonconformance> categorize(Set<TestError> errors, String sourceFolder){
@@ -38,7 +37,7 @@ public class Categorize {
 				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
 				n.setCause(categorizePrecondition(te, sourceFolder, n.getMethodCalling()));
 				n.setTestFile(te.getTestFile());
-				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
+				n.setLinesFromTestFile(te.getNumberRevealsNC());
 				nonconformances.add(n);
 				break;
 				
@@ -52,7 +51,7 @@ public class Categorize {
 				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
 				n.setCause(categorizePostcondition(te, sourceFolder, n.getMethodCalling()));
 				n.setTestFile(te.getTestFile());
-				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
+				n.setLinesFromTestFile(te.getNumberRevealsNC());
 				nonconformances.add(n);
 				break;
 
@@ -66,7 +65,7 @@ public class Categorize {
 				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
 				n.setCause(categorizeInvariant(te, sourceFolder, n.getMethodCalling()));
 				n.setTestFile(te.getTestFile());
-				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
+				n.setLinesFromTestFile(te.getNumberRevealsNC());
 				nonconformances.add(n);
 				break;
 				
@@ -80,7 +79,7 @@ public class Categorize {
 				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
 				n.setCause(categorizeConstraint(te, sourceFolder, n.getMethodCalling()));
 				n.setTestFile(te.getTestFile());
-				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
+				n.setLinesFromTestFile(te.getNumberRevealsNC());
 				nonconformances.add(n);
 				break;
 				
@@ -94,7 +93,7 @@ public class Categorize {
 				n.setMethodCalling(te.getLineOfErrorInJava(), sourceFolder);
 				n.setCause(categorizeEvaluation(te, sourceFolder, n.getMethodCalling()));				
 				n.setTestFile(te.getTestFile());
-				n.setLinesFromTestFile(te.getTestFile(), te.getNumberRevealsNC());
+				n.setLinesFromTestFile(te.getNumberRevealsNC());
 				nonconformances.add(n);
 				break;
 				
@@ -104,12 +103,13 @@ public class Categorize {
 		}
 		return nonconformances;
 	}
+	
 	/**
-	 *Method that returns a likely cause for a nonconformance of precondition. Receives a test error - the nonconformance - and 
-	 * the source folder that contains the class that has a nonconformance.
-	 * @param e - the nonconformance
-	 * @param sourceFolder - the folder that contains the class with a nonconformance.
-	 * @param string 
+	 * Method that returns a likely cause for a nonconformance of precondition. Receives a test 
+	 * error - the nonconformance - and the source folder that contains the class that has a nonconformance.
+	 * @param e - The nonconformance.
+	 * @param sourceFolder - The folder that contains the class with a nonconformance.
+	 * @param methodCalling - The string that will be contained on the method declaration(for validation). 
 	 * @return the string that corresponds the likely cause for this precondition error.
 	 */
 	private String categorizePrecondition(TestError e, String sourceFolder, String methodCalling){
@@ -125,11 +125,11 @@ public class Categorize {
 	}
 	
 	/**
-	 *Method that returns a likely cause for a nonconformance of postcondition. Receives a test error - the nonconformance - and 
-	 * the source folder that contains the class that has a nonconformance.
-	 * @param e - the nonconformance
-	 * @param sourceFolder - the folder that contains the class with a nonconformance.
-	 * @param string 
+	 * Method that returns a likely cause for a nonconformance of postcondition. Receives a test 
+	 * error - the nonconformance - and the source folder that contains the class that has a nonconformance.
+	 * @param e - The nonconformance.
+	 * @param sourceFolder - The folder that contains the class with a nonconformance..
+	 * @param methodCalling - The string that will be contained on the method declaration(for validation). 
 	 * @return the string that corresponds the likely cause for this postcondition error.
 	 */
 	private String categorizePostcondition(TestError e, String sourceFolder, String methodCalling){
@@ -145,11 +145,11 @@ public class Categorize {
 	}
 	
 	/**
-	 *Method that returns a likely cause for a nonconformance of invariant. Receives a test error - the nonconformance - and 
-	 * the source folder that contains the class that has a nonconformance.
-	 * @param e - the nonconformance
-	 * @param sourceFolder - the folder that contains the class with a nonconformance.
-	 * @param methodCalling 
+	 * Method that returns a likely cause for a nonconformance of invariant. Receives a test 
+	 * error - the nonconformance - and the source folder that contains the class that has a nonconformance.
+	 * @param e - The nonconformance
+	 * @param sourceFolder - The folder that contains the class with a nonconformance.
+	 * @param methodCalling - The string that will be contained on the method declaration(for validation). 
 	 * @return the string that corresponds the likely cause for this invariant error.
 	 */
 	private String categorizeInvariant(TestError e, String sourceFolder, String methodCalling){
@@ -167,11 +167,11 @@ public class Categorize {
 	}
 	
 	/**
-	 *Method that returns a likely cause for a nonconformance of history constraint. Receives a test error - the nonconformance - and 
-	 * the source folder that contains the class that has a nonconformance.
-	 * @param e - the nonconformance
-	 * @param sourceFolder - the folder that contains the class with a nonconformance.
-	 * @param string 
+	 * Method that returns a likely cause for a nonconformance of history constraint. Receives a test 
+	 * error - the nonconformance - and the source folder that contains the class that has a nonconformance.
+	 * @param e - The nonconformance.
+	 * @param sourceFolder - The folder that contains the class with a nonconformance.
+	 * @param methodCalling - The string that will be contained on the method declaration(for validation). 
 	 * @return the string that corresponds the likely cause for this history constraint error.
 	 */
 	private String categorizeConstraint(TestError e, String sourceFolder, String methodCalling){
@@ -190,11 +190,11 @@ public class Categorize {
 	}
 	
 	/**
-	 *Method that returns a likely cause for a nonconformance of evaluation. Receives a test error - the nonconformance - and 
-	 * the source folder that contains the class that has a nonconformance.
-	 * @param e - the nonconformance
+	 * Method that returns a likely cause for a nonconformance of evaluation. Receives a test
+	 * error - The nonconformance - and the source folder that contains the class that has a nonconformance.
+	 * @param e - The nonconformance
 	 * @param sourceFolder - the folder that contains the class with a nonconformance.
-	 * @param string 
+	 * @param methodCalling - The string that will be contained on the method declaration(for validation). 
 	 * @return the string that corresponds the likely cause for this evaluation error.
 	 */
 	private String categorizeEvaluation(TestError e, String sourceFolder, String methodCalling){

@@ -1,5 +1,10 @@
 package categorize;
 
+/**
+ * An category of nonconformance, the Evaluation Error.
+ * @author Alysson
+ *
+ */
 public class Evaluation implements Category{
 
 	public String causeToString() {

@@ -26,7 +26,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import sun.security.krb5.internal.crypto.Nonce;
 import utils.Constants;
 import utils.FileUtil;
 import categorize.CategoryName;
@@ -61,7 +60,6 @@ public class ResultProducer {
 
 	/**
 	 * Method used to list the distinct nonconformances that were detected by the JMLOK tool.
-	 * @param path = the path of file that contains a list of all tests that revealed nonconformances.
 	 * @param compiler = the integer that indicates the JML compiler used.
 	 * @return - the of list the distinct nonconformances that were detected by the JMLOK tool.
 	 */
@@ -168,8 +166,7 @@ public class ResultProducer {
 	/**
 	 * Method used to create an element to put into the xml file.
 	 * @param doc = the Document where the element will be put.
-	 * @param type = the type of the nonconformance.
-	 * @param message = the message of the corresponding nonconformance.
+	 * @param n = the nonconformance to extract info.
 	 * @return - an element to put into the xml file.
 	 */
 	private static Element createsElement(Document doc, Nonconformance n){
@@ -190,7 +187,7 @@ public class ResultProducer {
 	
 	/**
 	 * Method that generates the file containing the nonconformances that were detected.
-	 * @param compiler = the integer that indicates the JML compiler used. 
+	 * @param nonconformances = the set of nonconformances to go extracting info. 
 	 * @return - the list of nonconformances detected by the JMLOK tool.
 	 */
 	public static Set<Nonconformance> generateResult(Set<Nonconformance> nonconformances){
@@ -219,5 +216,4 @@ public class ResultProducer {
 		}
 		return nonconformances;
 	}
-
 }

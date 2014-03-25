@@ -15,8 +15,15 @@ import controller.Controller;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * Screen shown after Detection phase, executed by the program. An advisor screen
+ * were it just shows that detection ocurred with no problems.
+ * @author Alysson Milanez and Dennis Souza
+ * @version 1.0
+ */
 public class DetectionScreenAdvisorFrame extends JFrame {
 
+	private static final long serialVersionUID = 7840357361061019283L;
 	private JPanel contentPane;
 
 	/**
@@ -53,6 +60,9 @@ public class DetectionScreenAdvisorFrame extends JFrame {
 		
 	}
 
+	/**
+	 * Calls categorization Screen.
+	 */
 	protected void callsCategorization() {
 		Controller.showCategorizationScreen();
 		setVisible(false);

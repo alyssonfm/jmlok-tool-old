@@ -25,12 +25,21 @@ import javax.swing.text.Highlighter;
 import controller.Controller;
 import categorize.Nonconformance;
 
+/**
+ * Shown an Screen for Categorization info of the program.
+ * @author Alysson Milanez and Dennis Souza
+ * @version 1.0
+ */
 public class CategorizationScreenAdvisorFrame extends JFrame {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5134427426591954176L;
 	private List<Nonconformance> nc;
 	private String[] namesNC;
 	private JPanel contentPane;
-	private JList listNonconformances;
+	private JList<String> listNonconformances;
 	private JLabel lblMethodNameSetter;
 	private JLabel lblClassNameSetter;
 	private JLabel lblLikelyCauseSetter;
@@ -128,7 +137,7 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		scrollPane.setBounds(24, 81, 178, 240);
 		contentPane.add(scrollPane);
 		
-		listNonconformances = new JList(namesNC);
+		listNonconformances = new JList<String>(namesNC);
 		scrollPane.setViewportView(listNonconformances);
 		listNonconformances.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listNonconformances.addListSelectionListener(
@@ -167,6 +176,10 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		
 	}
 
+	/**
+	 * Operation when button save results are pressed, copy the file results.xml to
+	 * another directory specified by user.
+	 */
 	protected void saveResults() {
 		String path = "";
 		dirLibs.setApproveButtonText("Select");
@@ -182,6 +195,9 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * Execute some changes in labels, when user select some items from the list of nonconformances.
+	 */
 	private void setChangesFromSelectionOnTheList() {
 			lblClassNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getClassName());
 			lblMethodNameSetter.setText(nc.get(listNonconformances.getSelectedIndex()).getMethodName());
@@ -204,6 +220,10 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 			}
 	}
 	 
+	/**
+	 * Initialize the list strings. 
+	 * @param nonconformance The List of nonconformances categorized by the program.
+	 */
 	private void initializingStringForSelectionList(List<Nonconformance> nonconformance) {
 		nc = nonconformance;
 		namesNC = new String[nc.size()];
@@ -212,6 +232,9 @@ public class CategorizationScreenAdvisorFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * Close the Screen.
+	 */
 	protected void closeWindow() {
 		this.setVisible(false);
 	}

@@ -51,6 +51,12 @@ public class Examinator {
 	private ArrayList<String> variables;
 	private boolean isAllVarUpdated = false;
 	
+	/**
+	 * Declares some constants that will be used in Examinator for indicate which verification
+	 * the class are doing.
+	 * @author Dênnis Dantas
+	 *
+	 */
 	public enum Operations {
 		ATR_VAR_IN_PRECONDITION, REQUIRES_TRUE, ATR_MOD, ISNT_NULL_RELATED, ENSURES_TRUE 		
 	}
@@ -64,37 +70,41 @@ public class Examinator {
 	public Examinator(String dir) {
 		this.srcDir = dir;
 	}
+	
+	/**
+	 * Get the complete name of the principal class examined. 
+	 * @return complete name of the principal class examined.
+	 */
+	public String getPrincipalClassName() {
+		return principalClassName;
+	}
+	
 	/**
 	 * Change the principal class examined from this object.
-	 * @param principalClassName
+	 * @param principalClassName the principal class name examined from this object.
 	 */
 	public void setPrincipalClassName(String principalClassName) {
 		this.principalClassName = principalClassName;
 		this.variables = FileUtil.getVariablesFromClass(principalClassName);
 		this.isAllVarUpdated = false;
 	}
+	
 	/**
-	 * 
-	 * @param value
+	 * Declares isAllVarUpdated to default value, for class variable analysis.
 	 */
 	public void resetIsAllVarUpdated(){
 		this.isAllVarUpdated = false;
 	}
-	/**
-	 * Get the complete name of the principal class examined. 
-	 * @return Complete name of the principal class examined.
-	 */
-	public String getPrincipalClassName() {
-		return principalClassName;
-	}
+	
 	/**
 	 * Method that gets the class name and return it without the package names.
 	 * @param className The name of the class.
-	 * @return The class name without the package name.
+	 * @return the class name without the package name.
 	 */
 	private String getOnlyClassName(String className){
 		return className.substring(className.lastIndexOf(".") + 1);
 	}
+	
 	/**
 	 * Method that returns the complete java path to class, whose class name was
 	 * received as parameter.
@@ -121,6 +131,7 @@ public class Examinator {
 		name += ".jml";
 		return srcDir + Constants.FILE_SEPARATOR + name;
 	}
+	
 	/**
 	 * This method creates an File object desired with classname and type of the
 	 * file, if it's .jml or .java file.
@@ -134,6 +145,7 @@ public class Examinator {
 		else
 			return new java.io.File(getJavaPathFromFile(classname));
 	}
+	
 	/**
 	 * Method that add variables from superclass not added before to variables
 	 * list of the class.
@@ -144,6 +156,22 @@ public class Examinator {
 			for(String s : FileUtil.getVariablesFromClass(classname))
 				if(!this.variables.contains(s))
 					this.variables.add(s);
+	}
+	
+	/**
+	 * Get the method calling identificator.
+	 * @return The method calling identificator.
+	 */
+	public String getMethodCalling() {
+		return methodCalling;
+	}
+	
+	/**
+	 * Set the method calling identificator.
+	 * @param methodCalling The method calling identificator.
+	 */
+	public void setMethodCalling(String methodCalling) {
+		this.methodCalling = methodCalling;
 	}
 	
 	/**
@@ -162,6 +190,7 @@ public class Examinator {
 		}
 		return false;
 	}
+	
 	/**
 	 * Checks if the Precondition clauses from a method are too weak.
 	 * @param methodName Name of the method studied.
@@ -183,10 +212,11 @@ public class Examinator {
 		}
 		return false;
 	}
+	
 	/**
-	 * 
-	 * @param methodName
-	 * @return
+	 * Checks if the nonconformance where caused by some variable with null value.
+	 * @param methodName Name of the method studied.
+	 * @return if the nonconformance are null-related.
 	 */
 	public boolean checkNull(String methodName){
 		try {
@@ -201,17 +231,18 @@ public class Examinator {
 	}
 	
 	/**
-	 * Realize some examinations on precondition clauses in a desired class,
+	 * Realize some examinations on clauses in a desired class,
 	 * and its related class, like interfaces or superclasses. 
 	 * 
 	 * @param classname
-	 *            name of the class searched
+	 *            name of the class searched.
 	 * @param methodname
-	 *            name of the method searched
+	 *            name of the method searched.
+	 * @param isJMLFile
 	 * @param typeOfExamination
-	 * 			  operation desired to do on the method
-	 * @return true if some attribute on the method declaration are located on
-	 *         the precondition expression or false.
+	 * 			  operation desired to do on the method.
+	 * @return true if the conditions of the desired method
+	 * 	          where fulfilled.
 	 * @throws Exception When the API can't be created.
 	 */
 	private boolean examineJavaAndJMLCode(String className, String methodName, boolean isJMLFile, Operations typeOfExamination) throws Exception {
@@ -225,6 +256,7 @@ public class Examinator {
 			verifyVarInitializedOutsideMethods(ourClass);
 		return examineMethods(takeMethodsFromClass(ourClass, methodName), typeOfExamination);
 	}
+	
 	/**
 	 * Examine various methods to do some type of Operation.
 	 * @param ourMethods The methods selected for examination.
@@ -252,8 +284,9 @@ public class Examinator {
 			return this.variables.isEmpty();
 		return false;
 	}
+	
 	/**
-	 * Examine an Requires Clause from an method to do some operations.
+	 * Examine an Requires or Ensures Clause from an method to do some operations.
 	 * @param typeOfExamination The type of examination used.
 	 * @param anMethod The method searched.
 	 * @param clauses The clauses from the method.
@@ -293,6 +326,7 @@ public class Examinator {
 			return isEnsuresClauseNotFounded;
 		return false;
 	}
+	
 	/**
 	 * Examine if the attribute or variable from a Class method are on the requires clauses.
 	 * @param anMethod The method examinated.
@@ -303,23 +337,23 @@ public class Examinator {
 		for (com.sun.tools.javac.util.List<JCVariableDecl> acessing = anMethod.params; 
 				!acessing.isEmpty(); acessing = acessing.tail)
 			if(verifyFieldsInClause(traversing, acessing.head.name.toString(), true))
-				//this.violatedClause = traversing.toString();
 				return true;
 		for (String var : this.variables) 
 			if(verifyFieldsInClause(traversing, var, false))
-				//this.violatedClause = traversing.toString();
 				return true;
 		return false;
 	}
+	
 	/**
-	 * Examine if the method has some requires with value constantly true.
+	 * Examine if the method has some requires or ensures with value constantly true.
 	 * @param traversing The clause to examine.
-	 * @return true If the method has some requires with constant true value.
+	 * @return true If the method has some requires or ensures with constant true value.
 	 */
 	private boolean isClauseTrue(com.sun.tools.javac.util.List<JmlMethodClause> traversing) {
 		JCTree expression = ((JmlMethodClauseExpr) traversing.head).expression;
 		return hasTrueValue(expression) != 0 && hasTrueValue(expression) != VAR_FALSE_VALUE;
 	}
+	
 	/**
 	 * Take the code from the method to perform some examination.
 	 * @param anMethod The method to examine.
@@ -343,6 +377,7 @@ public class Examinator {
 		}
 		return false;
 	}
+	
 	/**
 	 * Verify if some variable from class or parameter from the method are receiving a value
 	 * in an attribution.
@@ -361,10 +396,11 @@ public class Examinator {
 		}
 		return false;
 	}
+	
 	/**
-	 * 
-	 * @param block
-	 * @return
+	 * Verify if all variables were initialized on the constructor.
+	 * @param block The lines of the constructor.
+	 * @return true if all variables were initialized on the constructor.
 	 */
 	private boolean isAllVariableInitialized(JCBlock block) {
 		for (com.sun.tools.javac.util.List<JCStatement> traversing = block.stats; !traversing.isEmpty(); traversing = traversing.tail){
@@ -412,6 +448,7 @@ public class Examinator {
 		}
 		return null;
 	}
+	
 	/**
 	 * Take all methods with the same name desired from an class, and return listed.
 	 * @param clazz The class to walk.
@@ -429,13 +466,14 @@ public class Examinator {
 			}
 		return methods;
 	}
+	
 	/**
-	 * Do the operations from examinePrecondition in all interfaces, superclasses
+	 * Do an specified operation in all interfaces, superclasses
 	 * or .jml files associated with the .java who called it.
 	 * @param className The name of the class who called it.
-	 * @param methodName The method searched;
-	 * @param typeOfExamination If its RequiresTrue ou itsAtrVarInPrecondition
-	 * @return true if it in any of the associated, they got one field in the desired clause.
+	 * @param methodName The method searched.
+	 * @param typeOfExamination The operation made in the class.
+	 * @return true if it in any of the operations returns it.
 	 * @throws Exception If any Operation was bad-formulated on Code.
 	 */
 	private boolean examineAllClassAssociated(String className, String methodName, Operations typeOfExamination) throws Exception {
@@ -458,9 +496,10 @@ public class Examinator {
 		}
 		return false;
 	}
+	
 	/**
-	 * 
-	 * @param ourClass
+	 * Verify if some variable were already initialized on its declaration.
+	 * @param ourClass The class to examine.
 	 */
 	private void verifyVarInitializedOutsideMethods(JmlClassDecl ourClass) {
 		com.sun.tools.javac.util.List<JCTree> traverser;
@@ -484,8 +523,8 @@ public class Examinator {
 	}
 	
 	/**
-	 * one field equals to the String toTest given.
 	 * Verify all components of the Method Clause, if it's Binary or Ident type, that there are at least
+	 * one field equals to the String toTest given.
 	 * @param traversing Method Clause to verify.
 	 * @param toTest Name of the field to compare.
 	 * @param isFieldParameterOfMethod true, if the type of the field are just methods parameters or false. 
@@ -499,6 +538,7 @@ public class Examinator {
 			return true;
 		return false;
 	}
+	
 	/**
 	 * This function walks into a tree with nodes of type JCBinary to search for 
 	 * a string as one of the elements of the tree.
@@ -521,6 +561,7 @@ public class Examinator {
 		}
 		return false;
 	}
+	
 	/**
 	 * Verify if the boolean expression have a true value despite of any variable values. 
 	 * @param expression The boolean expression examinated.
@@ -541,6 +582,7 @@ public class Examinator {
 		}
 		return VAR_FALSE_VALUE;
 	}
+	
 	/**
 	 * Calculate the value from binary expression, always considering variables with false value.
 	 * @param expression The binary boolean expression examinated.
@@ -586,6 +628,7 @@ public class Examinator {
 				return 0;
 		}
 	}
+	
 	/**
 	 * Verify if the expression is an assign and its assign to some value in parameters or variables from class.
 	 * @param params The parameters from the method.
@@ -608,9 +651,10 @@ public class Examinator {
 		}
 		return false;
 	}
+	
 	/**
 	 * Verify if the name given is some of the parameters of a method or variables from the class.
-	 * @param params The parameters from the method do analyze.
+	 * @param params The parameters from the method to analyze.
 	 * @param toTest The name to search.
 	 * @return true If the name correspond to some of the fields.
 	 */
@@ -626,10 +670,5 @@ public class Examinator {
 			}
 		return false;
 	}
-	public String getMethodCalling() {
-		return methodCalling;
-	}
-	public void setMethodCalling(String methodCalling) {
-		this.methodCalling = methodCalling;
-	}
+
 }

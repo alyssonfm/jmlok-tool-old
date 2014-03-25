@@ -113,11 +113,11 @@ public class FileUtil {
 	 * 
 	 * @param name
 	 *            - the name of the new file.
-	 * @param texto
+	 * @param text
 	 *            - the content of the file.
 	 * @return - the new file created.
 	 */
-	public static File makeFile(String name, String texto) {
+	public static File makeFile(String name, String text) {
 		File result = new File(name);
 		try {
 			result.createNewFile();
@@ -126,7 +126,7 @@ public class FileUtil {
 				result.createNewFile();
 			}
 			fw = new FileWriter(result);
-			fw.write(texto);
+			fw.write(text);
 			fw.close();
 		} catch (IOException e) {
 			System.err.println("Error in method FileUtil.makeFile()");
@@ -158,10 +158,12 @@ public class FileUtil {
 	}
 	
 	/**
-	 * Method to read a file received as parameter.
+	 * Method to read a single line of a file received as parameter.
 	 * 
 	 * @param name
 	 *            - the name of the file to be read.
+	 * @param line
+	 *  		  - the line to be read.
 	 * @return - the content of the file.
 	 */
 	public static String readSingleLineOfFile(String name, int line) {
@@ -307,6 +309,8 @@ public class FileUtil {
 	 * 
 	 * @param path
 	 *            The complete class name from the class searched.
+	 * @param srcDir
+	 * 			  The source directory where the project examined are located.
 	 * @return String representing the complete class name from the Super Class
 	 *         extended.
 	 */

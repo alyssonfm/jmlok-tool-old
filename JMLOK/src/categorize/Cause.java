@@ -1,5 +1,10 @@
 package categorize;
 
+/**
+ * Class used to set the cause name of each nonconformance revealed by the Detect module.
+ * @author Alysson
+ *
+ */
 public class Cause {
 	public static final String STRONG_PRE = "Strong Precondition";
 	public static final String WEAK_PRE = "Weak Precondition";
@@ -9,5 +14,5 @@ public class Cause {
 	public static final String STRONG_CONST = "Strong Constraint";
 	public static final String NOT_EVAL_EXP = "Cannot be Evaluated";
 	public static final String BAD_FORMMED_EXP = "Incorrect Expression";
-	public static final String NULL_RELATED = "Null-Related";
+	public static final String NULL_RELATED = "Null-Related - Code Error";
 }

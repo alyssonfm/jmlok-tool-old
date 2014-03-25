@@ -48,6 +48,7 @@ public class TestError {
 	 * The alternative constructor of this class. Takes only two arguments as parameter.
 	 * @param message - the message of the error.
 	 * @param type - the type of the error.
+	 * @param details - the details from the error log.
 	 */
 	public TestError(String message, String type, String details){
 		this.setTypeOpenjml(type);
@@ -161,13 +162,6 @@ public class TestError {
 	}
 
 	/**
-	 * Method that returns the String that corresponds to the current test error.
-	 */
-	public String toString() {
-		return name + ", "+message+", type: "+type;
-	}
-	
-	/**
 	 * Method that sets the class name for the current test error.
 	 */
 	public void setClassName(){
@@ -190,10 +184,10 @@ public class TestError {
 	public String getClassName(){
 		return this.className;
 	}
-	
-	
+
 	/**
 	 * Method that sets the method name for the current test error.
+	 * @param details The details from the error log.
 	 */
 	public void setMethodName(String details){
 		String result = "";
@@ -270,14 +264,6 @@ public class TestError {
 	}
 
 	/**
-	 * Method that returns the number of line where current error was found.
-	 * @return Line where current test Error was found in the Test File.
-	 */
-	public int getNumberRevealsNC() {
-		return this.numberRevealsNC;
-	}
-	
-	/**
 	 * Method that sets the line where current error was found.
 	 * @param details The details from error, where line was specified.
 	 */
@@ -289,6 +275,73 @@ public class TestError {
 		this.numberRevealsNC = aux.intValue();
 	}	
 
+	/**
+	 * Method that returns the number of line where current error was found.
+	 * @return Line where current test Error was found in the Test File.
+	 */
+	public int getNumberRevealsNC() {
+		return this.numberRevealsNC;
+	}
+
+	
+	/**
+	 * Method that returns the String that corresponds to the current test error.
+	 */
+	public String toString() {
+		return name + ", "+message+", type: "+type;
+	}
+
+	/**
+	 * Get the package and the class which used the interface where error was thrown.
+	 * @return the package and the class which used the interface where error was thrown.
+	 */
+	public String getPackageAndClassCalling() {
+		return packageAndClassCalling;
+	}
+	
+	/**
+	 * Set the package and the class which used the interface where error was thrown.
+	 * @param details The details shown by the error log.
+	 */
+	public void setPackageAndClassCalling(String details) {
+		int firstIndex = 0, temp = 0;
+		if(getType().equals(CategoryName.CONSTRAINT)){
+			while((temp = details.indexOf("$JmlSurrogate", firstIndex + 1)) != -1){
+				firstIndex = temp;
+			}
+			if(firstIndex != 0){
+				firstIndex = details.indexOf("at ", firstIndex);
+				int lastIndex = details.indexOf(".", firstIndex);
+				this.packageAndClassCalling += details.substring(firstIndex + 3, lastIndex);
+				firstIndex = lastIndex + 1;
+				lastIndex = details.indexOf(".", firstIndex);
+				this.packageAndClassCalling += "." + details.substring(firstIndex, lastIndex);
+			}
+		}
+	}
+
+	/**
+	 * Get the line where error was thrown in the java file.
+	 * @return the line where error was thrown in the java file.
+	 */
+	public int getLineOfErrorInJava() {
+		return lineOfErrorInJava;
+	}
+
+	/**
+	 * Set the line where error was thrown in the java file.
+	 */
+	public void setLineOfErrorInJava() {
+		int firstIndex = this.message.indexOf("line ");
+		if(firstIndex == -1)
+			this.lineOfErrorInJava = firstIndex;
+		else{
+			int temp = this.message.indexOf(',', firstIndex + 5);
+			int lastIndex = (temp == -1)? 0 : temp;
+			this.lineOfErrorInJava = (lastIndex == 0)? 0 : Integer.parseInt(this.message.substring(firstIndex + 5, lastIndex));
+		}
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if((obj instanceof TestError) 
@@ -308,47 +361,4 @@ public class TestError {
 	public int hashCode() {
 		return getType().length()+getMethodName().length()+getClassName().length();
 	}
-	/**
-	 * 
-	 * @return
-	 */
-	public String getPackageAndClassCalling() {
-		return packageAndClassCalling;
-	}
-	/**
-	 * 
-	 * @param classCalling
-	 */
-	public void setPackageAndClassCalling(String details) {
-		int firstIndex = 0, temp = 0;
-		if(getType().equals(CategoryName.CONSTRAINT)){
-			while((temp = details.indexOf("$JmlSurrogate", firstIndex + 1)) != -1){
-				firstIndex = temp;
-			}
-			if(firstIndex != 0){
-				firstIndex = details.indexOf("at ", firstIndex);
-				int lastIndex = details.indexOf(".", firstIndex);
-				this.packageAndClassCalling += details.substring(firstIndex + 3, lastIndex);
-				firstIndex = lastIndex + 1;
-				lastIndex = details.indexOf(".", firstIndex);
-				this.packageAndClassCalling += "." + details.substring(firstIndex, lastIndex);
-			}
-		}
-	}
-
-	public int getLineOfErrorInJava() {
-		return lineOfErrorInJava;
-	}
-
-	public void setLineOfErrorInJava() {
-		int firstIndex = this.message.indexOf("line ");
-		if(firstIndex == -1)
-			this.lineOfErrorInJava = firstIndex;
-		else{
-			int temp = this.message.indexOf(',', firstIndex + 5);
-			int lastIndex = (temp == -1)? 0 : temp;
-			this.lineOfErrorInJava = (lastIndex == 0)? 0 : Integer.parseInt(this.message.substring(firstIndex + 5, lastIndex));
-		}
-	}
-
 }
