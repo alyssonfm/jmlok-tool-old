@@ -219,13 +219,14 @@ public class Examinator {
 	 * @return if the nonconformance are null-related.
 	 */
 	public boolean checkNull(String methodName){
+		this.setPrincipalClassName(this.getPrincipalClassName());
 		try {
-			if(!examineJavaAndJMLCode(this.principalClassName, "<init>", false, Operations.ISNT_NULL_RELATED))
+			if(!examineJavaAndJMLCode(this.principalClassName, "<init>", false, Operations.ISNT_NULL_RELATED)){
 				return true;
+			}
 		} catch (Exception e) {
 				e.printStackTrace();
 		}
-		this.setPrincipalClassName(this.getPrincipalClassName());
 		this.resetIsAllVarUpdated();
 		return false;
 	}
@@ -461,7 +462,7 @@ public class Examinator {
 		for (traverser = clazz.defs; !traverser.isEmpty(); traverser = traverser.tail)
 			if(traverser.head.getKind().equals(Tree.Kind.METHOD) 
 			   && ((JmlMethodDecl)traverser.head).name.toString().equals(methodName)
-			   && (traverser.head.toString().contains(this.methodCalling))){
+			   && (traverser.head.toString().contains(this.methodCalling.trim()))){
 				methods.add((JmlMethodDecl) traverser.head);
 			}
 		return methods;
