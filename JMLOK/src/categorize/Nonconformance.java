@@ -199,7 +199,7 @@ public class Nonconformance {
 		if(lineOfErrorInJava == -1)
 			this.methodCalling = "";
 		else if(lineOfErrorInJava == 0)
-			this.methodCalling = "\"\\o/, Do not find me.\"";
+			this.methodCalling = "defaultConstructor is not explicit";
 		else{
 			String name = (this.packageName + "." + this.className).replace('.', '/');
 			name += ".java";
@@ -207,6 +207,9 @@ public class Nonconformance {
 		    int temp = this.methodCalling.lastIndexOf("{");
 		    if(temp != -1)
 		    	this.methodCalling = this.methodCalling.substring(0, this.methodCalling.lastIndexOf("{")).trim();
+		}
+		if(this.methodCalling.contains(this.getClassName())){
+			this.methodCalling = this.methodCalling.replaceFirst(this.className, "<init>");
 		}
 	}
 	
